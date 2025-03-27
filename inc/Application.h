@@ -8,7 +8,7 @@
 
 #include "Panel.h"
 #include "ConnectionPanel.h"
-
+#include "DashboardPanel.h"
 
 namespace Logger
 {

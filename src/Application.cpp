@@ -172,14 +172,15 @@ namespace Logger
     {
         ImVec2 newSize(800, 600); 
         ImGui::SetNextWindowSize(newSize, 0);
-        if(ImGui::Begin("Debug Window", nullptr, ImGuiWindowFlags_AlwaysAutoResize))
+
+        if(ImGui::Begin("Debug Window", &m_RenderDebugWindow, ImGuiWindowFlags_AlwaysAutoResize))
         {
             ImGuiIO& io = ImGui::GetIO();
             ImGui::TextWrapped("Pannels: %d", panels.size());
             ImGui::TextWrapped("Framerate: %f", io.Framerate);
             if(ImGui::Button("Add new dashboard"))
             {
-                // TODO
+                AddPanel(new DashboardPanel());
             }
         }
         ImGui::End();

@@ -10,7 +10,7 @@ namespace Logger
     void ConnectionPanel::Render()
     {
         bool isOpen = true;
-
+        
         if(ImGui::Begin("ConnectionPanel", &isOpen, ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoSavedSettings))
         {
             ImGui::Text("This is a connection pannel test");
