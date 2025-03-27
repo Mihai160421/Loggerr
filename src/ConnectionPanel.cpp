@@ -2,16 +2,17 @@
 
 namespace Logger
 {
-    ConnectionPanel::ConnectionPanel()
-    {
-        m_Closed = true; /* We start as a closed panel */
+    ConnectionPanel::ConnectionPanel() {
+        SetPanelName("Connection Panel");
     }
 
     void ConnectionPanel::Render()
     {
         bool isOpen = true;
         
-        if(ImGui::Begin("ConnectionPanel", &isOpen, ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoSavedSettings))
+        if(ImGui::Begin(m_PanelName, &isOpen, ImGuiWindowFlags_NoDocking 
+            | ImGuiWindowFlags_NoCollapse 
+            | ImGuiWindowFlags_NoSavedSettings))
         {
             ImGui::Text("This is a connection pannel test");
 

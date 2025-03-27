@@ -114,13 +114,7 @@ namespace Logger
             /* New menu item */
             if (ImGui::BeginMenu("New")) {
                 if (ImGui::MenuItem("New Connection")) {
-                    ConnectionPanel& panel = ConnectionPanel::getInstance();
-
-                    if(panel.m_Closed)
-                    {
-                        panel.m_Closed = false;
-                        AddPanel(&panel);
-                    }
+                    AddPanel(new ConnectionPanel());
                 }
                 ImGui::Separator(); 
                 if (ImGui::MenuItem("Exit")) {
@@ -141,30 +135,20 @@ namespace Logger
     }
 
     void Application::AddPanel(IPanel* panel) {
-        panels.push_back(panel);
+        panels.push_back(std::unique_ptr<IPanel>(panel));
     }
 
     void Application::HandlePanels() {
-
-        IPanel* panelToRemove = nullptr;
-        for (auto& panel : panels) {
-
-            if(panel->m_Closed)
-            {
-                // If it was closed, remove it from the list and don't render it
-                panelToRemove = panel;
+        std::list<std::unique_ptr<IPanel>>::iterator it = panels.begin();
+        while (it != panels.end()) {
+            // If the panel is closed and it's not the connection panel, remove it
+            // Note: Connection panel is a singleton and should not be removed
+            if ((*it)->m_Closed) {
+                it = panels.erase(it);
+            } else {
+                (*it)->Render();
+                ++it;
             }
-            else
-            {
-                panel->Render();
-            }
-        }
-
-        // Stupid way to do it but if we do it inside for loop it will seg fault
-        // TODO Find a better way
-        if(panelToRemove)
-        {
-            panels.remove(panelToRemove);
         }
     }
 
@@ -178,10 +162,13 @@ namespace Logger
             ImGuiIO& io = ImGui::GetIO();
             ImGui::TextWrapped("Pannels: %d", panels.size());
             ImGui::TextWrapped("Framerate: %f", io.Framerate);
+            ImGui::TextWrapped("Memory Usage: %d", Application::GetMemoryUsage());
             if(ImGui::Button("Add new dashboard"))
             {
                 AddPanel(new DashboardPanel());
             }
+
+            ImGui::ShowDemoWindow();
         }
         ImGui::End();
     }
