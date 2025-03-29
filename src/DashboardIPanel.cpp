@@ -1,5 +1,10 @@
 #include "DashboardIPanel.h"
 #include "MainIPanel.h"
+#include "LoggerMacros.h"
+
+#define PANNEL_PADDING_X 10.0f // Padding for the panels
+#define PANNEL_PADDING_Y 3.0f // Padding for the panels
+#define PANAEL_TEXTBOX_HEIGHT 20.0f // Height of the text box for command input
 
 namespace Logger 
 {
@@ -13,68 +18,49 @@ namespace Logger
 
         ImGui::SetNextWindowDockID(MainIPanel::GetInstance()->GetDockspaceID(), ImGuiCond_FirstUseEver);
         
-        
-        ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, {0.0f, 0.0f});
-        ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, {PANNEL_PADDING_X, PANNEL_PADDING_Y}); // Set the window padding
 
         // Create the dashboard panel window
-        if(ImGui::Begin(m_PanelName, &_WindowOpen, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoSavedSettings))
+        if(ImGui::Begin(m_PanelName, &_WindowOpen, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoSavedSettings| ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse))
         {
-            ImVec2 windowSize = ImGui::GetWindowSize();
-            windowSize.x -= ImGui::GetStyle().WindowPadding.x * 2;
-            windowSize.y -= ImGui::GetStyle().WindowPadding.y * 2;
-            windowSize.x -= ImGui::GetStyle().FramePadding.x * 2;
-            windowSize.y -= ImGui::GetStyle().FramePadding.y * 2;
-            windowSize.x -= ImGui::GetStyle().ItemSpacing.x * 2;
-            windowSize.y -= ImGui::GetStyle().ItemSpacing.y * 2;
-            windowSize.x -= ImGui::GetStyle().ScrollbarSize * 2;
-            windowSize.y -= ImGui::GetStyle().ScrollbarSize * 2;
-            windowSize.x -= ImGui::GetStyle().WindowBorderSize * 2;
-            windowSize.y -= ImGui::GetStyle().WindowBorderSize * 2;
+            ImVec2 windowSize = ImGui::GetContentRegionAvail(); // Get the available size of the window
 
-            /*
-                Render the log panels in the dashboard panel
-
-                All the logs panels stored in m_LogPanel list should ocupy 75% of the dashboard panel width
-                and 80% of the dashboard panel height.
-            */
-
-            // Calculate the size of the log panels
-            if(ImGui::BeginChild("##LogPanels", ImVec2(windowSize.x * 0.75f, windowSize.y * 0.94f), true))
+            /* Render the log panels in the dashboard panel */
             {
-                ImGuiID dockspaceID = ImGui::GetID("MainPanel");
-                ImGui::DockSpace(dockspaceID, ImVec2(0.0f, 0.0f), ImGuiDockNodeFlags_None);                 
+               
+               float logPanelWidth = windowSize.x * 0.75f; // Width of the log panels
+               float logPanelHeight = windowSize.y - PANAEL_TEXTBOX_HEIGHT - 5.f; // Height of the log panels
+               
+               
+               ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, {0, 0}); // Set the window padding
+               if(ImGui::BeginChild("##LogPanels", {logPanelWidth ,logPanelHeight}, true))
+               {
+                   // TODO handle log pannels
+                   ImGui::DockSpace(ImGui::GetID("MainPanel"), ImVec2(0.0f, 0.0f), ImGuiDockNodeFlags_None);                 
+                }
+                ImGui::EndChild();
+                ImGui::PopStyleVar(); // Pop the window padding style variable
             }
-            ImGui::EndChild();
-
-            /*
-                Render the insert command panel in the dashboard panel
-            */
-            // Calculate the size of the insert command panel
-            if(ImGui::BeginChild("##InsertCommandPanel", ImVec2(windowSize.x * 0.75f, windowSize.y * 0.06f), false))
+            
+            /* Render the insert command panel in the dashboard panel */
             {
                 char m_CommandBuffer[256] = {0}; // Buffer to store the command input
-
+                
                 ImGui::PushItemWidth(0.75f * windowSize.x); // Set the width of the input text field
+
+                // Set input text at the bottom of the dashboard panel
+                ImGui::SetCursorPosY(windowSize.y); // Set the cursor position to the bottom of the window
 
                 if(ImGui::InputText("##Command", m_CommandBuffer, sizeof(m_CommandBuffer), ImGuiInputTextFlags_EnterReturnsTrue)) {
                     // Handle the command input here
-                    // For example, you can send the command to the log panel or execute it
                     std::cout << "Command: " << m_CommandBuffer << std::endl;
                     memset(m_CommandBuffer, 0, sizeof(m_CommandBuffer)); // Clear the buffer after processing
-
-                    // Set input text back to active
                     ImGui::SetKeyboardFocusHere(-1); // Focus on the input text field
-                }        
-
-                ImGui::PopItemWidth(); // Pop the item width
+                } ImGui::PopItemWidth(); // Pop the item width
             }
-            ImGui::EndChild();
-        }
-        ImGui::End();
+        } ImGui::End();
 
         ImGui::PopStyleVar(); // Pop the window padding style variable
-        ImGui::PopStyleVar(); // Pop the window border size style variable
 
         // If the window is closed, set the closed flag to true
         if (!_WindowOpen) {
