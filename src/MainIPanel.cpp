@@ -28,7 +28,8 @@ namespace Logger
           ImGui::SetNextWindowSize(viewport->WorkSize);
           ImGui::SetNextWindowViewport(viewport->ID);
 
-
+          ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, {0.0f, 0.0f});
+          ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
           // Make the main panel dockable
           if(ImGui::Begin("MainPanel", nullptr, 
               ImGuiWindowFlags_NoTitleBar
@@ -47,6 +48,9 @@ namespace Logger
             m_DockspaceID = ImGui::DockSpace(ImGui::GetID("MainPanelDock"), ImVec2(0, 0), ImGuiDockNodeFlags_PassthruCentralNode);
           }
           ImGui::End();
+
+          ImGui::PopStyleVar();
+          ImGui::PopStyleVar();
 
     }    
 }
