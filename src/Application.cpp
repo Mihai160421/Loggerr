@@ -1,4 +1,6 @@
 #include "Application.h"
+#include "DashboardIPanel.h"
+#include "MainIPanel.h"
 
 #define GLSL_VERSION ("#version 130")
 
@@ -24,11 +26,11 @@ namespace Logger
         glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
     
         // Create window with graphics context
-        window = glfwCreateWindow(1280, 720, "Loggerr", nullptr, nullptr);
-        if (window == nullptr)
+        m_Window = glfwCreateWindow(1280, 720, "Loggerr", nullptr, nullptr);
+        if (m_Window == nullptr)
             return ;
         
-        glfwMakeContextCurrent(window);
+        glfwMakeContextCurrent(m_Window);
         glfwSwapInterval(1); // Enable vsync
     
         // Setup Dear ImGui context
@@ -43,17 +45,17 @@ namespace Logger
         ImGui::StyleColorsDark();
     
         // Setup Platform/Renderer backends
-        ImGui_ImplGlfw_InitForOpenGL(window, true);
+        ImGui_ImplGlfw_InitForOpenGL(m_Window, true);
         ImGui_ImplOpenGL3_Init(GLSL_VERSION);
     }
 
     void Application::Run()
     {
-        while (!glfwWindowShouldClose(window))
+        while (!glfwWindowShouldClose(m_Window))
         {
             ImGuiIO& io = ImGui::GetIO();
             glfwPollEvents();
-            if (glfwGetWindowAttrib(window, GLFW_ICONIFIED) != 0)
+            if (glfwGetWindowAttrib(m_Window, GLFW_ICONIFIED) != 0)
             {
                 ImGui_ImplGlfw_Sleep(10);
                 continue;
@@ -65,13 +67,14 @@ namespace Logger
             ImGui::NewFrame();
 
             {
-                // Make the GLFW window viewport dockable
-                auto viewport =  ImGui::GetWindowViewport();
-                ImGui::DockSpaceOverViewport(viewport->ID);
+                // Render the main menu bar
+                RenderMainMenuBar();
+                
+                // Render the main panel
+                MainIPanel::GetInstance()->Render(); 
 
-                RenderMenuBar();
-
-                HandlePanels();
+                // Render all panels in the list 
+                IPanel::RenderPannelList(panels);
 
                 if(m_RenderDebugWindow)
                 {
@@ -82,7 +85,7 @@ namespace Logger
             ImGui::Render();
     
             int display_w, display_h;
-            glfwGetFramebufferSize(window, &display_w, &display_h);
+            glfwGetFramebufferSize(m_Window, &display_w, &display_h);
             
             glViewport(0, 0, display_w, display_h);
             glClearColor(0.0f, 0.0f, 0.0f, 1.00f);
@@ -101,76 +104,10 @@ namespace Logger
                 glfwMakeContextCurrent(backup_current_context);
             }
     
-            glfwSwapBuffers(window);
+            glfwSwapBuffers(m_Window);
         }
 
         Shutdown();
-    }
-
-    void Application::RenderMenuBar()
-    {
-        if (ImGui::BeginMainMenuBar()) {
-
-            /* New menu item */
-            if (ImGui::BeginMenu("New")) {
-                if (ImGui::MenuItem("New Connection")) {
-                    AddPanel(new ConnectionPanel());
-                }
-                ImGui::Separator(); 
-                if (ImGui::MenuItem("Exit")) {
-                    glfwSetWindowShouldClose(window, true);
-                }
-                ImGui::EndMenu();
-            }
-
-              /* New menu item */
-              if (ImGui::BeginMenu("Debug")) {
-                m_RenderDebugWindow = true;
-                ImGui::EndMenu();
-            }
-        
-        
-            ImGui::EndMainMenuBar();
-        }
-    }
-
-    void Application::AddPanel(IPanel* panel) {
-        panels.push_back(std::unique_ptr<IPanel>(panel));
-    }
-
-    void Application::HandlePanels() {
-        std::list<std::unique_ptr<IPanel>>::iterator it = panels.begin();
-        while (it != panels.end()) {
-            // If the panel is closed and it's not the connection panel, remove it
-            // Note: Connection panel is a singleton and should not be removed
-            if ((*it)->m_Closed) {
-                it = panels.erase(it);
-            } else {
-                (*it)->Render();
-                ++it;
-            }
-        }
-    }
-
-    void Application::RenderDebugWindow()
-    {
-        ImVec2 newSize(800, 600); 
-        ImGui::SetNextWindowSize(newSize, 0);
-
-        if(ImGui::Begin("Debug Window", &m_RenderDebugWindow, ImGuiWindowFlags_AlwaysAutoResize))
-        {
-            ImGuiIO& io = ImGui::GetIO();
-            ImGui::TextWrapped("Pannels: %d", panels.size());
-            ImGui::TextWrapped("Framerate: %f", io.Framerate);
-            ImGui::TextWrapped("Memory Usage: %d", Application::GetMemoryUsage());
-            if(ImGui::Button("Add new dashboard"))
-            {
-                AddPanel(new DashboardPanel());
-            }
-
-            ImGui::ShowDemoWindow();
-        }
-        ImGui::End();
     }
 
     void Application::Shutdown()
@@ -179,7 +116,66 @@ namespace Logger
         ImGui_ImplGlfw_Shutdown();
         ImGui::DestroyContext();
     
-        glfwDestroyWindow(window);
+        glfwDestroyWindow(m_Window);
         glfwTerminate();
+    }
+
+    void Application::RenderMainMenuBar()
+    {
+        if (ImGui::BeginMainMenuBar())
+        {
+            if (ImGui::BeginMenu("New"))
+            {
+                if(ImGui::MenuItem("New Connection", nullptr, false, true))
+                {
+                    // TODO: Open new connection
+                }
+                ImGui::EndMenu();
+            }
+
+            if (ImGui::BeginMenu("Debug"))
+            {
+                if(ImGui::MenuItem("Open Debug Window", nullptr, false, true))
+                {
+                    m_RenderDebugWindow = true;
+                }
+                ImGui::EndMenu();
+            }
+
+            ImGui::EndMainMenuBar();
+        }
+    }
+
+    void Application::AddPanel(std::unique_ptr<IPanel> panel)
+    {
+        panels.push_back(std::move(panel));
+    }
+
+    void Application::RenderDebugWindow()
+    {
+        ImGui::Begin("Debug Window", &m_RenderDebugWindow, 
+                                                                ImGuiWindowFlags_NoCollapse
+                                                                | ImGuiWindowFlags_NoDocking
+                                                                | ImGuiWindowFlags_NoSavedSettings);
+
+        //ImGuiID dockspaceID = ImGui::DockSpace(ImGui::GetID("DebugDock"), ImVec2(0.0f, 0.0f), ImGuiDockNodeFlags_None); // Create a dockspace for the debug window
+
+        ImGui::Text("Memory Usage: %zu KB", GetMemoryUsage());
+        ImGui::Text("FPS: %.2f", ImGui::GetIO().Framerate);
+        ImGui::Text("Display Size: %d x %d", (int)ImGui::GetIO().DisplaySize.x, (int)ImGui::GetIO().DisplaySize.y);
+        ImGui::Text("Time Spent Rendering: %.2f ms", 1000.0f / ImGui::GetIO().Framerate);
+        ImGui::Text("Panel ID Counter: %zu", IPanel::GetPanelIDCounter());
+        ImGui::Text("Panel Destroyed Count: %zu", IPanel::GetPanelDestroyedCount());
+        ImGui::Text("App Runtime: %.2f seconds", glfwGetTime());
+        ImGui::Separator();
+
+        if(ImGui::Button("Add Empty Dashboard Panel", ImVec2(200, 0)))
+        {
+            AddPanel(std::make_unique<DashboardIPanel>());
+        }
+
+        //ImGui::SetNextWindowDockID(dockspaceID, ImGuiCond_Always);
+        ImGui::ShowDebugLogWindow(); // Show the debug log window
+        ImGui::End();
     }
 }

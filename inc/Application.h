@@ -6,9 +6,7 @@
 
 #include "Headers.h"
 
-#include "Panel.h"
-#include "ConnectionPanel.h"
-#include "DashboardPanel.h"
+#include "IPanel.h"
 
 extern "C" {
     #include <windows.h>
@@ -21,8 +19,7 @@ namespace Logger
     {
     private:
         /* GLFW window */
-        GLFWwindow* window = nullptr;                      
-        
+        GLFWwindow* m_Window = nullptr;                      
         /* List of pannels to be rendered */
         std::list<std::unique_ptr<IPanel>> panels;
 
@@ -30,13 +27,13 @@ namespace Logger
     public:
         Application();
         void Run();
-        void AddPanel(IPanel* panel);
 
     private:
         void Init();
         void Shutdown();
-        void RenderMenuBar();
-        void HandlePanels();
+        void RenderMainMenuBar();
+        void AddPanel(std::unique_ptr<IPanel> panel);
+
         void RenderDebugWindow();
 
         static size_t GetMemoryUsage() {
