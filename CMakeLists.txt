@@ -21,6 +21,10 @@ set(IMGUI_SOURCES
     vendors/imgui/backends/imgui_impl_glfw.cpp
     vendors/imgui/backends/imgui_impl_opengl3.cpp
 )
+
+file(COPY ${CMAKE_SOURCE_DIR}/vendors/imgui/misc/fonts/ DESTINATION ${CMAKE_BINARY_DIR}/fonts)
+
+
 add_library(imgui STATIC ${IMGUI_SOURCES})
 
 # Setup GLFW
