@@ -7,7 +7,7 @@
 #include "IPanel.h"
 #include "Headers.h"
 
-namespace Logger
+namespace Loggerr
 {
     class MainIPanel : public IPanel
     {
@@ -19,7 +19,7 @@ namespace Logger
         MainIPanel& operator=(const MainIPanel&) = delete;
         static MainIPanel* GetInstance();
 
-        void Render() override;
+        void OnRender() override;
 
         ImGuiID GetDockspaceID() const { return m_DockspaceID; } // Getter for the dockspace ID
     };

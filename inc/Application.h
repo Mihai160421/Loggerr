@@ -13,7 +13,7 @@ extern "C" {
     #include <psapi.h>
 }
 
-namespace Logger
+namespace Loggerr
 {
     class Application
     {

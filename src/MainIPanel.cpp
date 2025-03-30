@@ -2,7 +2,7 @@
 #include "Headers.h"
 #include "LoggerMacros.h"
 
-namespace Logger
+namespace Loggerr
 {
     MainIPanel* MainIPanel::m_Instance = nullptr; // Initialize the static instance variable
 
@@ -21,7 +21,7 @@ namespace Logger
         return m_Instance;
     }
 
-    void MainIPanel::Render()
+    void MainIPanel::OnRender()
     {
         // Try Render a main overall panel with docking enabled, this will be the main panel filled the window
         ImGuiViewport* viewport = ImGui::GetMainViewport();

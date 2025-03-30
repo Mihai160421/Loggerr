@@ -1,3 +1,4 @@
+#pragma once
 #include "Headers.h"
 
 #define __PUSH_STYLE(...) ImGui::PushStyleVar(__VA_ARGS__)

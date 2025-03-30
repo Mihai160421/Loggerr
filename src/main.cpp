@@ -2,7 +2,7 @@
 
 int main(int, char**)
 {
-    Logger::Application app;
+    Loggerr::Application app;
 
     app.Run();
 

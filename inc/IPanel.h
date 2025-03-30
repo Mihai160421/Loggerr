@@ -7,26 +7,27 @@
 */
 #pragma once
 
+#include "Headers.h"
 #include <stdint.h>
 #include <stdio.h>
 #include <iostream>
 #include <list>
 #include <memory>
 
-namespace Logger
+namespace Loggerr
 {
     class IPanel {
         public:
             bool m_Closed = false;
-            char m_PanelName[50];
-
+            std::string m_PanelName = "Panel";
+            
         protected:
             uint64_t m_ID = 0;
             bool m_FirstRender = true;
-
         public:
-            virtual void Render() = 0;
+            virtual void OnRender() = 0;
             void SetPanelName(const char* name);
+            void SetPanelName(std::string name);
             uint64_t GetID() const;
             const char* GetPanelName() const;
             bool IsClosed() const;

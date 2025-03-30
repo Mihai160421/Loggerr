@@ -9,7 +9,7 @@ static void glfw_error_callback(int error, const char* description)
     fprintf(stderr, "GLFW Error %d: %s\n", error, description);
 }
 
-namespace Logger
+namespace Loggerr
 {
     Application::Application(){
        Init(); 
@@ -47,10 +47,15 @@ namespace Logger
         // Setup Platform/Renderer backends
         ImGui_ImplGlfw_InitForOpenGL(m_Window, true);
         ImGui_ImplOpenGL3_Init(GLSL_VERSION);
+
     }
 
     void Application::Run()
     {
+        ImFont* robotoFont = ImGui::GetIO().Fonts->AddFontFromFileTTF("fonts/Roboto-Medium.ttf", 14.0f);
+        ImGui::GetIO().Fonts->Build() ;
+
+
         while (!glfwWindowShouldClose(m_Window))
         {
             ImGuiIO& io = ImGui::GetIO();
@@ -66,21 +71,50 @@ namespace Logger
             ImGui_ImplGlfw_NewFrame();
             ImGui::NewFrame();
 
+            // Setup font
+
+            ImGui::PushFont(robotoFont);
+
             {
                 // Render the main menu bar
                 RenderMainMenuBar();
                 
+                ImGui::PushStyleColor(ImGuiCol_TitleBg,             {0.094, 0.094, 0.094, 1});
+                ImGui::PushStyleColor(ImGuiCol_TitleBgActive,       {0.094, 0.094, 0.094, 1});
+                ImGui::PushStyleColor(ImGuiCol_TitleBgCollapsed,    {0.094, 0.094, 0.094, 1});
+                ImGui::PushStyleColor(ImGuiCol_Tab,                 {0.094, 0.094, 0.094, 1});
+                ImGui::PushStyleColor(ImGuiCol_TabDimmed,           {0.094, 0.094, 0.094, 1});
+                ImGui::PushStyleColor(ImGuiCol_TabSelected,         {0.169, 0.169, 0.169, 1});
+                ImGui::PushStyleColor(ImGuiCol_TabDimmedSelected,   {0.169, 0.169, 0.169, 1});
+                ImGui::PushStyleColor(ImGuiCol_TabSelectedOverline, {0.169, 0.169, 0.169, 1});
+                ImGui::PushStyleColor(ImGuiCol_TabHovered,          {0.169, 0.169, 0.169, 1});
+                ImGui::PushStyleColor(ImGuiCol_FrameBg,             {0.169, 0.169, 0.169, 1});
+                
                 // Render the main panel
-                MainIPanel::GetInstance()->Render(); 
+                MainIPanel::GetInstance()->OnRender(); 
 
                 // Render all panels in the list 
+
                 IPanel::RenderPannelList(panels);
+
+                ImGui::PopStyleColor();
+                ImGui::PopStyleColor();
+                ImGui::PopStyleColor();
+                ImGui::PopStyleColor();
+                ImGui::PopStyleColor();
+                ImGui::PopStyleColor();
+                ImGui::PopStyleColor();
+                ImGui::PopStyleColor();
+                ImGui::PopStyleColor();
+                ImGui::PopStyleColor();
 
                 if(m_RenderDebugWindow)
                 {
                     RenderDebugWindow();
                 }
             }
+
+            ImGui::PopFont();
 
             ImGui::Render();
     
@@ -153,29 +187,25 @@ namespace Logger
 
     void Application::RenderDebugWindow()
     {
-        ImGui::Begin("Debug Window", &m_RenderDebugWindow, 
-                                                                ImGuiWindowFlags_NoCollapse
-                                                                | ImGuiWindowFlags_NoDocking
-                                                                | ImGuiWindowFlags_NoSavedSettings);
-
-        //ImGuiID dockspaceID = ImGui::DockSpace(ImGui::GetID("DebugDock"), ImVec2(0.0f, 0.0f), ImGuiDockNodeFlags_None); // Create a dockspace for the debug window
-
-        ImGui::Text("Memory Usage: %zu KB", GetMemoryUsage());
-        ImGui::Text("FPS: %.2f", ImGui::GetIO().Framerate);
-        ImGui::Text("Display Size: %d x %d", (int)ImGui::GetIO().DisplaySize.x, (int)ImGui::GetIO().DisplaySize.y);
-        ImGui::Text("Time Spent Rendering: %.2f ms", 1000.0f / ImGui::GetIO().Framerate);
-        ImGui::Text("Panel ID Counter: %zu", IPanel::GetPanelIDCounter());
-        ImGui::Text("Panel Destroyed Count: %zu", IPanel::GetPanelDestroyedCount());
-        ImGui::Text("App Runtime: %.2f seconds", glfwGetTime());
-        ImGui::Separator();
-
-        if(ImGui::Button("Add Empty Dashboard Panel", ImVec2(200, 0)))
+        if(ImGui::Begin("Debug Window", &m_RenderDebugWindow, 
+                                            ImGuiWindowFlags_NoCollapse
+                                            | ImGuiWindowFlags_NoDocking
+                                            | ImGuiWindowFlags_NoSavedSettings))
         {
-            AddPanel(std::make_unique<DashboardIPanel>());
+            ImGui::Text("Memory Usage: %zu KB", GetMemoryUsage());
+            ImGui::Text("FPS: %.2f", ImGui::GetIO().Framerate);
+            ImGui::Text("Display Size: %d x %d", (int)ImGui::GetIO().DisplaySize.x, (int)ImGui::GetIO().DisplaySize.y);
+            ImGui::Text("Time Spent Rendering: %.2f ms", 1000.0f / ImGui::GetIO().Framerate);
+            ImGui::Text("Panel ID Counter: %zu", IPanel::GetPanelIDCounter());
+            ImGui::Text("Panel Destroyed Count: %zu", IPanel::GetPanelDestroyedCount());
+            ImGui::Text("App Runtime: %.2f seconds", glfwGetTime());
+            ImGui::Separator();
+            if(ImGui::Button("Add Empty Dashboard Panel", ImVec2(200, 0)))
+            {
+                AddPanel(std::make_unique<DashboardIPanel>());
+    
+            }
         }
-
-        //ImGui::SetNextWindowDockID(dockspaceID, ImGuiCond_Always);
-        ImGui::ShowDebugLogWindow(); // Show the debug log window
         ImGui::End();
     }
 }

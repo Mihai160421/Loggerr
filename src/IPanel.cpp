@@ -16,7 +16,7 @@
 static uint64_t panelIDCounter = 0;     // Static variable to keep track of panel IDs
 static uint64_t panelDestroyedCounter = 0; // Static variable to keep track of panel IDs
 
-namespace Logger
+namespace Loggerr
 {
     IPanel::IPanel()
     {
@@ -34,14 +34,29 @@ namespace Logger
 
     void IPanel::SetPanelName(const char* name)
     {
-        sprintf_s(m_PanelName, "%s#%d", name, m_ID);
+        if (name == nullptr) {
+            std::cerr << "Error: Panel name cannot be null" << std::endl;
+            return;
+        }
+
+        m_PanelName = name; // Set the panel name to the provided name
+        m_PanelName += "##"; // Append a space to the panel name
+        m_PanelName += std::to_string(m_ID); // Append the panel ID to the name
     }
+
+    void IPanel::SetPanelName(std::string name)
+    {
+        m_PanelName = name; // Set the panel name to the provided name
+        m_PanelName += "##"; // Append a space to the panel name
+        m_PanelName += std::to_string(m_ID); // Append the panel ID to the name
+    }
+
     uint64_t IPanel::GetID() const { 
         return m_ID; 
     }
 
     const char* IPanel::GetPanelName() const { 
-        return m_PanelName; 
+        return m_PanelName.c_str(); 
     }
 
     bool IPanel::IsClosed() const { 
@@ -58,7 +73,7 @@ namespace Logger
             if ((*it)->m_Closed) {
                 it = panels.erase(it);
             } else {
-                (*it)->Render();
+                (*it)->OnRender();
                 ++it;
             }
         }
