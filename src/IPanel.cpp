@@ -18,7 +18,7 @@ static uint64_t panelDestroyedCounter = 0; // Static variable to keep track of p
 
 namespace Loggerr
 {
-    IPanel::IPanel()
+    IPanel::IPanel() 
     {
         SetPanelName("Panel");
         m_ID = panelIDCounter++;
@@ -68,21 +68,21 @@ namespace Loggerr
     }
 
     bool IPanel::IsClosed() const { 
-        return m_Closed; 
+        return !m_Open; 
     }
 
     void IPanel::Close(bool close)
     {
-        m_Closed = close;
+        m_Open = !close;
     }
 
-    void IPanel::RenderPannelList(std::list<std::unique_ptr<IPanel>>& panels)
+    void IPanel::RenderPannelList(std::list<std::shared_ptr<IPanel>>& panels)
     {
-        std::list<std::unique_ptr<IPanel>>::iterator it = panels.begin();
+        std::list<std::shared_ptr<IPanel>>::iterator it = panels.begin();
         while (it != panels.end()) {
             // If the panel is closed and it's not the connection panel, remove it
             // Note: Connection panel is a singleton and should not be removed
-            if ((*it)->m_Closed) {
+            if ((*it)->IsClosed()) {
                 it = panels.erase(it);
             } else {
                 (*it)->OnRender();

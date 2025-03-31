@@ -21,7 +21,7 @@ namespace Loggerr
         /* GLFW window */
         GLFWwindow* m_Window = nullptr;                      
         /* List of pannels to be rendered */
-        std::list<std::unique_ptr<IPanel>> m_Panels;
+        std::list<std::shared_ptr<IPanel>> m_Panels;
 
         bool m_RenderDebugWindow = false;
         
@@ -36,7 +36,7 @@ namespace Loggerr
         void Init();
         void Shutdown();
         void RenderMainMenuBar();
-        void AddPanel(std::unique_ptr<IPanel> panel);
+        void AddPanel(std::shared_ptr<IPanel> panel);
 
         void RenderDebugWindow();
 

@@ -7,7 +7,7 @@
 
 namespace Loggerr
 {
-    class DashboardIPanel : public IPanel
+    class DashboardIPanel : public IPanel, public std::enable_shared_from_this<DashboardIPanel>
     {
         public:
             // List of log panels to be rendered
@@ -15,6 +15,7 @@ namespace Loggerr
         private:
             // Window size
             ImVec2 m_WindowSize = {0, 0}; /* Drawable available space on dashboard */
+            bool m_PreferencePannel = false;
         public:
             DashboardIPanel();
             void OnRender() override;
@@ -23,6 +24,5 @@ namespace Loggerr
 
         private:
             void RenderLogPanels();
-            void RenderInsertCommandPanel();
     };
 }

@@ -20,17 +20,16 @@ namespace Loggerr
         public:
             bool m_Docked = false;
             bool m_Active = false;
-
-            
-        private:
-            bool m_Closed = false;                  /* Window has been closed */
-            std::string m_PanelName = "Panel";      /* Panel name */
-            uint64_t m_ID = 0;                      /* Panel unique id */
-            ImGuiID m_DockspaceID = 0;              /* Panel Dockspace ID if any */
-
         
-        protected:
+        private:
+            std::string m_PanelName = "Panel";      /* Panel name                               */
+            uint64_t m_ID = 0;                      /* Panel unique id                          */
+            ImGuiID m_DockspaceID = 0;              /* Panel Dockspace ID if any                */
+            std::weak_ptr<IPanel> owner;            /* The Window owner the panel belongs to    */
+            
+            protected:
             bool m_FirstRender = true;
+            bool m_Open = true;                  /* Window has been closed                      */
             
         public:
             virtual ~IPanel();
@@ -48,7 +47,7 @@ namespace Loggerr
             bool IsClosed() const;
             void Close(bool close = true);
             
-            static void RenderPannelList(std::list<std::unique_ptr<IPanel>>& panels);
+            static void RenderPannelList(std::list<std::shared_ptr<IPanel>>& panels);
             static uint64_t GetPanelIDCounter();
             static uint64_t GetPanelDestroyedCount();
             
@@ -57,5 +56,6 @@ namespace Loggerr
             
         protected:
             IPanel();
+            IPanel(std::weak_ptr<IPanel> owner) : owner(owner) {};
     };
 }

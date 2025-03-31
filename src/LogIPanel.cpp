@@ -11,7 +11,6 @@ namespace Loggerr
     };
 
     void LogIPanel::OnRender() {
-        bool _WindowOpen = true; // Flag to control the window open state
         ImGuiWindowFlags AdditionalFlags = 0;
 
         if (m_Dockit) { 
@@ -28,7 +27,7 @@ namespace Loggerr
 
         // ImGui::SetNextWindowClass(&window_class1);
         // Set the window name to the owner's name and the panel name
-        if(ImGui::Begin(GetPanelName(), &_WindowOpen, ImGuiWindowFlags_NoCollapse 
+        if(ImGui::Begin(GetPanelName(), &m_Open, ImGuiWindowFlags_NoCollapse 
                                                     | ImGuiWindowFlags_NoSavedSettings)) // Begin the window with the panel name
         {
             UpdateInternalState();
@@ -40,10 +39,6 @@ namespace Loggerr
             HandleFilterInputText();
         }
         ImGui::End(); // End the window
-            
-        if(! _WindowOpen) { // If the window is closed
-            Close();
-        }
     };
 
     void LogIPanel::HandlePopupContext()

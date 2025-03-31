@@ -17,7 +17,10 @@ namespace Loggerr
             bool m_Docked = false;
             char m_Filter[128] = {0};
         public:
-            LogIPanel( DashboardIPanel* dashboardPanel);
+            LogIPanel(DashboardIPanel* dashboardPanel);
+            LogIPanel(std::weak_ptr<IPanel> owner) : IPanel(owner) {};
+
+
             void OnRender() override;
             void ForceDock() { m_Dockit = true; } // Force the panel to dock
 

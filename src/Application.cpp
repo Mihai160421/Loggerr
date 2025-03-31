@@ -67,7 +67,6 @@ namespace Loggerr
         ImFont* robotoFont = ImGui::GetIO().Fonts->AddFontFromFileTTF("fonts/Roboto-Medium.ttf", 14.0f);
         ImGui::GetIO().Fonts->Build() ;
 
-
         while (!glfwWindowShouldClose(m_Window))
         {
             ImGuiIO& io = ImGui::GetIO();
@@ -86,7 +85,6 @@ namespace Loggerr
             // Setup font
 
             ImGui::PushFont(robotoFont);
-
             {
                 // Render the main menu bar
                 RenderMainMenuBar();
@@ -106,7 +104,6 @@ namespace Loggerr
                 MainIPanel::GetInstance()->OnRender(); 
 
                 // Render all panels in the list 
-
                 IPanel::RenderPannelList(m_Panels);
 
                 ImGui::PopStyleColor();
@@ -192,9 +189,9 @@ namespace Loggerr
         }
     }
 
-    void Application::AddPanel(std::unique_ptr<IPanel> panel)
+    void Application::AddPanel(std::shared_ptr<IPanel> panel)
     {
-        m_Panels.push_back(std::move(panel));
+        m_Panels.push_back(panel);
     }
 
     bool Application::IsAnyDashboardActive(){
@@ -224,8 +221,12 @@ namespace Loggerr
             ImGui::Separator();
             if(ImGui::Button("Add Empty Dashboard Panel", ImVec2(200, 0)))
             {
-                AddPanel(std::make_unique<DashboardIPanel>());
-    
+                AddPanel(std::make_shared<DashboardIPanel>());
+            }
+
+            if(ImGui::Button("Show ImGui Demo pannel", ImVec2(200, 0)))
+            {
+                ImGui::ShowDemoWindow();
             }
         }
         ImGui::End();
