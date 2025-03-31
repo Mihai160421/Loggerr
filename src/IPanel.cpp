@@ -20,35 +20,33 @@ namespace Loggerr
 {
     IPanel::IPanel()
     {
-        m_ID = panelIDCounter++;
         SetPanelName("Panel");
-
-        std::cout << "Panel " << m_PanelName << " created " << std::endl;
+        m_ID = panelIDCounter++;
     }
-
+    
     IPanel::~IPanel()
     {
         panelDestroyedCounter++;
-        std::cout << "Panel " << m_PanelName << " destroyed" << std::endl;
     };
+
+    void IPanel::UpdateInternalState()
+    {
+        m_Docked = ImGui::IsWindowDocked();        
+        m_Active = ImGui::IsItemActive();        
+    }
 
     void IPanel::SetPanelName(const char* name)
     {
-        if (name == nullptr) {
-            std::cerr << "Error: Panel name cannot be null" << std::endl;
-            return;
-        }
-
-        m_PanelName = name; // Set the panel name to the provided name
-        m_PanelName += "##"; // Append a space to the panel name
-        m_PanelName += std::to_string(m_ID); // Append the panel ID to the name
+        m_PanelName = name; 
+        m_PanelName += "##"; 
+        m_PanelName += std::to_string(m_ID); 
     }
 
     void IPanel::SetPanelName(std::string name)
     {
-        m_PanelName = name; // Set the panel name to the provided name
-        m_PanelName += "##"; // Append a space to the panel name
-        m_PanelName += std::to_string(m_ID); // Append the panel ID to the name
+        m_PanelName = name;
+        m_PanelName += "##"; 
+        m_PanelName += std::to_string(m_ID);
     }
 
     uint64_t IPanel::GetID() const { 
@@ -59,11 +57,25 @@ namespace Loggerr
         return m_PanelName.c_str(); 
     }
 
+    ImGuiID IPanel::GetDockspaceID() const
+    {
+        return m_DockspaceID;
+    }
+
+    void IPanel::SetDockspaceID(ImGuiID dockspace)
+    {
+        m_DockspaceID = dockspace;
+    }
+
     bool IPanel::IsClosed() const { 
         return m_Closed; 
     }
 
-    // Static
+    void IPanel::Close(bool close)
+    {
+        m_Closed = close;
+    }
+
     void IPanel::RenderPannelList(std::list<std::unique_ptr<IPanel>>& panels)
     {
         std::list<std::unique_ptr<IPanel>>::iterator it = panels.begin();

@@ -29,7 +29,6 @@ namespace Loggerr
         ImGui::SetNextWindowSize(viewport->WorkSize);
         ImGui::SetNextWindowViewport(viewport->ID);
 
-
         __PUSH_STYLE(ImGuiStyleVar_WindowPadding, {0.0f, 0.0f});
         __PUSH_STYLE(ImGuiStyleVar_WindowBorderSize, 0.0f);
         // Make the main panel dockable
@@ -47,10 +46,11 @@ namespace Loggerr
             | ImGuiWindowFlags_NoNavFocus
             | ImGuiWindowFlags_NoBringToFrontOnFocus))
         {
-        m_DockspaceID = ImGui::DockSpace(ImGui::GetID("MainPanelDock"), ImVec2(0, 0), ImGuiDockNodeFlags_PassthruCentralNode);
+            UpdateInternalState();
+
+            SetDockspaceID(ImGui::DockSpace(ImGui::GetID("MainPanelDock"), ImVec2(0, 0), ImGuiDockNodeFlags_PassthruCentralNode));
         }
         ImGui::End();
-
 
         __POP_STYLE(2);
     }    

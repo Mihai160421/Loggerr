@@ -16,7 +16,7 @@ namespace Loggerr
 
         if (m_Dockit) { 
             m_Dockit = false;
-            ImGui::SetNextWindowDockID(m_DashboardPanelOwner->m_LogPanelDockableSpaceID); // Set the next window dock ID to the dashboard panel's dock ID
+            ImGui::SetNextWindowDockID(m_DashboardPanelOwner->GetDockspaceID()); // Set the next window dock ID to the dashboard panel's dock ID
         }
         
         {
@@ -28,7 +28,7 @@ namespace Loggerr
                                                     | ImGuiWindowFlags_NoSavedSettings 
                                                     | AdditionalFlags)) // Begin the window with the panel name
         {
-            m_Docked = ImGui::IsWindowDocked();
+            UpdateInternalState();
             
             HandlePopupContext();
 
@@ -39,7 +39,7 @@ namespace Loggerr
         ImGui::End(); // End the window
             
         if(! _WindowOpen) { // If the window is closed
-            m_Closed = true; // Set the closed flag to true
+            Close();
         }
     };
 
@@ -57,7 +57,7 @@ namespace Loggerr
 
             if(m_DashboardPanelOwner->GetLogPanelCount() > 1) { // If there are multiple log panels
                 if (ImGui::MenuItem("Remove Log Panel")) {
-                    m_Closed = true; // Set the closed flag to true when the remove menu item is clicked
+                    Close();
                 }
             }
             ImGui::EndPopup(); // End the popup menu

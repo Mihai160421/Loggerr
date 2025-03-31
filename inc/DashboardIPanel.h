@@ -7,13 +7,11 @@
 
 namespace Loggerr
 {
-    class DashboardIPanel : public IPanel, public std::enable_shared_from_this<DashboardIPanel>
+    class DashboardIPanel : public IPanel
     {
         public:
             // List of log panels to be rendered
             std::list<std::unique_ptr<LogIPanel>> m_LogPanels;
-            ImGuiID m_LogPanelDockableSpaceID = 0; /* Dockable space ID for the log panels */
-            
         private:
             // Window size
             ImVec2 m_WindowSize = {0, 0}; /* Drawable available space on dashboard */

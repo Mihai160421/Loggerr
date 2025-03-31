@@ -18,27 +18,44 @@ namespace Loggerr
 {
     class IPanel {
         public:
-            bool m_Closed = false;
-            std::string m_PanelName = "Panel";
+            bool m_Docked = false;
+            bool m_Active = false;
+
             
+        private:
+            bool m_Closed = false;                  /* Window has been closed */
+            std::string m_PanelName = "Panel";      /* Panel name */
+            uint64_t m_ID = 0;                      /* Panel unique id */
+            ImGuiID m_DockspaceID = 0;              /* Panel Dockspace ID if any */
+
+        
         protected:
-            uint64_t m_ID = 0;
             bool m_FirstRender = true;
+            
         public:
+            virtual ~IPanel();
+            
             virtual void OnRender() = 0;
+            
             void SetPanelName(const char* name);
             void SetPanelName(std::string name);
+            
             uint64_t GetID() const;
             const char* GetPanelName() const;
+            ImGuiID GetDockspaceID() const;
+            void SetDockspaceID(ImGuiID dockspace);
+            
             bool IsClosed() const;
+            void Close(bool close = true);
+            
             static void RenderPannelList(std::list<std::unique_ptr<IPanel>>& panels);
             static uint64_t GetPanelIDCounter();
             static uint64_t GetPanelDestroyedCount();
-            virtual ~IPanel();
-        
-
+            
+            // This function should be called after a ImGui::Begin Window was created to update internal class member variables
+            void UpdateInternalState();
+            
         protected:
-            // Constructor is protected to prevent direct instantiation of IPanel
             IPanel();
     };
 }

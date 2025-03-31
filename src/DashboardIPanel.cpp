@@ -24,8 +24,10 @@ namespace Loggerr
 
         ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, {PANNEL_PADDING_X, PANNEL_PADDING_Y}); // Set the window padding
         // Create the dashboard panel window
-        if(ImGui::Begin(m_PanelName.c_str(), &_WindowOpen, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoSavedSettings| ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse))
+        if(ImGui::Begin(GetPanelName(), &_WindowOpen, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoSavedSettings| ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse))
         {
+            UpdateInternalState();
+
             m_WindowSize = ImGui::GetContentRegionAvail(); // Get the available size of the window
             
 
@@ -46,7 +48,7 @@ namespace Loggerr
 
         // If the window is closed, set the closed flag to true
         if (!_WindowOpen) {
-            m_Closed = true;
+           Close();
         }
     }
 
@@ -54,13 +56,12 @@ namespace Loggerr
         float logPanelWidth = m_WindowSize.x * 0.75f; // Width of the log panels
         float logPanelHeight = m_WindowSize.y - PANAEL_TEXTBOX_HEIGHT - 5.f; // Height of the log panels
         
-        
         // Render the log panels space
         ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, {0, 0}); // Set the window padding
         if(ImGui::BeginChild("##LogPanels", {logPanelWidth ,logPanelHeight}, true))
         {
             // Create a dockspace for the log panels
-            m_LogPanelDockableSpaceID =  ImGui::DockSpace(ImGui::GetID("LogIPanelDockingSpace"), ImVec2(0.0f, 0.0f), ImGuiDockNodeFlags_AutoHideTabBar);    
+            SetDockspaceID(ImGui::DockSpace(ImGui::GetID("LogIPanelDockingSpace"), ImVec2(0.0f, 0.0f), ImGuiDockNodeFlags_AutoHideTabBar));    
         }
         ImGui::EndChild();
 
@@ -68,11 +69,11 @@ namespace Loggerr
         std::list<std::unique_ptr<LogIPanel>>::iterator it = m_LogPanels.begin();
         while (it != m_LogPanels.end()) {
             // If the panel is closed and it's not the last panel
-            if ((*it)->m_Closed)
+            if ((*it)->IsClosed())
             {
                 if(m_LogPanels.size() == 1) {
                     // If there is only one log panel, do not close it
-                    (*it)->m_Closed = false;
+                    (*it)->Close(false);
                     ++it;
                     // Show prompt saying "Cannot close the last log panel"
                     ImGui::OpenPopup("Cannot close the last log panel");
@@ -86,8 +87,6 @@ namespace Loggerr
                 ++it;
             }
         }
-
-        ImGui::SetNextWindowDockID(m_LogPanelDockableSpaceID, ImGuiCond_Once); // Set the next window dock ID to the log panel dock ID
 
         ImGui::PopStyleVar(); // Pop the window padding style variable
     }
