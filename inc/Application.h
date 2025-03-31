@@ -21,14 +21,18 @@ namespace Loggerr
         /* GLFW window */
         GLFWwindow* m_Window = nullptr;                      
         /* List of pannels to be rendered */
-        std::list<std::unique_ptr<IPanel>> panels;
+        std::list<std::unique_ptr<IPanel>> m_Panels;
 
         bool m_RenderDebugWindow = false;
+        
     public:
-        Application();
+        static Application* getInstance();
         void Run();
-
+        bool IsAnyDashboardActive();
+        
     private:
+
+        Application();
         void Init();
         void Shutdown();
         void RenderMainMenuBar();

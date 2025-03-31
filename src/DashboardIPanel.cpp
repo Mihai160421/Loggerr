@@ -1,6 +1,7 @@
 #include "DashboardIPanel.h"
 #include "MainIPanel.h"
 #include "LoggerMacros.h"
+#include "Application.h"
 
 #include <list>
 #include <iostream>
@@ -29,7 +30,6 @@ namespace Loggerr
             UpdateInternalState();
 
             m_WindowSize = ImGui::GetContentRegionAvail(); // Get the available size of the window
-            
 
             /* Render the log panels in the dashboard panel */
             {
@@ -60,7 +60,6 @@ namespace Loggerr
         ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, {0, 0}); // Set the window padding
         if(ImGui::BeginChild("##LogPanels", {logPanelWidth ,logPanelHeight}, true))
         {
-            // Create a dockspace for the log panels
             SetDockspaceID(ImGui::DockSpace(ImGui::GetID("LogIPanelDockingSpace"), ImVec2(0.0f, 0.0f), ImGuiDockNodeFlags_AutoHideTabBar));    
         }
         ImGui::EndChild();

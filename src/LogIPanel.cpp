@@ -23,10 +23,13 @@ namespace Loggerr
             UpdatePanelName();
         }
 
+        // ImGuiWindowClass window_class1;
+        //     window_class1.DockNodeFlagsOverrideSet = ImGuiDockNodeFlags_NoSplit;
+
+        // ImGui::SetNextWindowClass(&window_class1);
         // Set the window name to the owner's name and the panel name
         if(ImGui::Begin(GetPanelName(), &_WindowOpen, ImGuiWindowFlags_NoCollapse 
-                                                    | ImGuiWindowFlags_NoSavedSettings 
-                                                    | AdditionalFlags)) // Begin the window with the panel name
+                                                    | ImGuiWindowFlags_NoSavedSettings)) // Begin the window with the panel name
         {
             UpdateInternalState();
             

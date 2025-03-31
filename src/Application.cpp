@@ -11,6 +11,18 @@ static void glfw_error_callback(int error, const char* description)
 
 namespace Loggerr
 {
+    Application* Application::getInstance()
+    {
+        static Application* instance = nullptr;
+
+        if(instance == nullptr)
+        {
+            instance = new Application();
+        }
+
+        return instance;
+    }
+
     Application::Application(){
        Init(); 
     }
@@ -95,7 +107,7 @@ namespace Loggerr
 
                 // Render all panels in the list 
 
-                IPanel::RenderPannelList(panels);
+                IPanel::RenderPannelList(m_Panels);
 
                 ImGui::PopStyleColor();
                 ImGui::PopStyleColor();
@@ -182,7 +194,17 @@ namespace Loggerr
 
     void Application::AddPanel(std::unique_ptr<IPanel> panel)
     {
-        panels.push_back(std::move(panel));
+        m_Panels.push_back(std::move(panel));
+    }
+
+    bool Application::IsAnyDashboardActive(){
+        for (const auto& panel : m_Panels) {
+            if (dynamic_cast<DashboardIPanel*>(panel.get())) {
+                if(panel.get()->m_Active)
+                    return true;
+            }
+        }
+        return false;       
     }
 
     void Application::RenderDebugWindow()
