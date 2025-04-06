@@ -1,14 +1,13 @@
 #include "MainIPanel.h"
-#include "Headers.h"
-#include "LoggerMacros.h"
+#include "pch.h"
 
-namespace Loggerr
+namespace APPLICATION_NAME
 {
     MainIPanel* MainIPanel::m_Instance = nullptr; // Initialize the static instance variable
 
-    MainIPanel::MainIPanel()
+    MainIPanel::MainIPanel() : IPanel("##MainPanel")
     {
-        SetPanelName("MainPanel");
+
     }
 
     MainIPanel* MainIPanel::GetInstance()
@@ -29,8 +28,6 @@ namespace Loggerr
         ImGui::SetNextWindowSize(viewport->WorkSize);
         ImGui::SetNextWindowViewport(viewport->ID);
 
-        __PUSH_STYLE(ImGuiStyleVar_WindowPadding, {0.0f, 0.0f});
-        __PUSH_STYLE(ImGuiStyleVar_WindowBorderSize, 0.0f);
         // Make the main panel dockable
         if(ImGui::Begin("MainPanel", nullptr, 
             ImGuiWindowFlags_NoTitleBar
@@ -51,7 +48,5 @@ namespace Loggerr
             SetDockspaceID(ImGui::DockSpace(ImGui::GetID("MainPanelDock"), ImVec2(0, 0), ImGuiDockNodeFlags_PassthruCentralNode));
         }
         ImGui::End();
-
-        __POP_STYLE(2);
     }    
 }

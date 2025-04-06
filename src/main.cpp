@@ -2,6 +2,6 @@
 
 int main(int, char**)
 {
-    Loggerr::Application::getInstance()->Run();
+    APPLICATION_NAME::Application::getInstance()->Run();
     return 0;
 }

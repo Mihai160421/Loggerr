@@ -11,23 +11,32 @@
 #include <iostream>
 #include <list>
 #include <memory>
+
 #include "IPanel.h"
 
-static uint64_t panelIDCounter = 0;     // Static variable to keep track of panel IDs
+static uint64_t panelIDCounter = 0;         // Static variable to keep track of panel IDs
 static uint64_t panelDestroyedCounter = 0; // Static variable to keep track of panel IDs
 
-namespace Loggerr
+static inline uint64_t GENERATE_ID()
 {
-    IPanel::IPanel() 
+    uint64_t _id = panelIDCounter;
+    panelIDCounter++;
+
+    return _id;
+}
+
+namespace APPLICATION_NAME
+{
+    IPanel::IPanel(const char* PanelName) 
     {
-        SetPanelName("Panel");
-        m_ID = panelIDCounter++;
+        m_ID = GENERATE_ID();
+        SetPanelName(PanelName);
     }
-    
+
     IPanel::~IPanel()
     {
         panelDestroyedCounter++;
-    };
+    }
 
     void IPanel::UpdateInternalState()
     {

@@ -1,6 +1,5 @@
 #include "Application.h"
-#include "DashboardIPanel.h"
-#include "MainIPanel.h"
+
 
 #define GLSL_VERSION ("#version 130")
 
@@ -9,7 +8,7 @@ static void glfw_error_callback(int error, const char* description)
     fprintf(stderr, "GLFW Error %d: %s\n", error, description);
 }
 
-namespace Loggerr
+namespace APPLICATION_NAME
 {
     Application* Application::getInstance()
     {
@@ -38,7 +37,7 @@ namespace Loggerr
         glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
     
         // Create window with graphics context
-        m_Window = glfwCreateWindow(1280, 720, "Loggerr", nullptr, nullptr);
+        m_Window = glfwCreateWindow(1280, 720, TO_STRING(APPLICATION_NAME), nullptr, nullptr);
         if (m_Window == nullptr)
             return ;
         
@@ -64,9 +63,13 @@ namespace Loggerr
 
     void Application::Run()
     {
-        ImFont* robotoFont = ImGui::GetIO().Fonts->AddFontFromFileTTF("fonts/Roboto-Medium.ttf", 14.0f);
-        ImGui::GetIO().Fonts->Build() ;
+        terminal = new Terminal("Test Terminal");
+       
+        TERMINAL_FONT = ImGui::GetIO().Fonts->AddFontFromFileTTF("fonts/Roboto-Medium.ttf", 19.0f);
+        //ImGui::GetIO().Fonts->Build() ;
 
+        // Add the main panel first in the panels list
+        m_Panels.push_back(std::shared_ptr<MainIPanel>(MainIPanel::GetInstance()));
         while (!glfwWindowShouldClose(m_Window))
         {
             ImGuiIO& io = ImGui::GetIO();
@@ -84,7 +87,7 @@ namespace Loggerr
 
             // Setup font
 
-            ImGui::PushFont(robotoFont);
+            //ImGui::PushFont(robotoFont);
             {
                 // Render the main menu bar
                 RenderMainMenuBar();
@@ -99,31 +102,40 @@ namespace Loggerr
                 ImGui::PushStyleColor(ImGuiCol_TabSelectedOverline, {0.169, 0.169, 0.169, 1});
                 ImGui::PushStyleColor(ImGuiCol_TabHovered,          {0.169, 0.169, 0.169, 1});
                 ImGui::PushStyleColor(ImGuiCol_FrameBg,             {0.169, 0.169, 0.169, 1});
+
+                ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, {0, 0});
+
                 
-                // Render the main panel
-                MainIPanel::GetInstance()->OnRender(); 
+                IPanel::RenderPannelList(m_Panels); // Render all panels
+                terminal->RenderTerminal(TERMINAL_FONT);
+                
+                ImGui::PopStyleVar();
 
-                // Render all panels in the list 
-                IPanel::RenderPannelList(m_Panels);
+                ImGui::PopStyleColor();
+                ImGui::PopStyleColor();
+                ImGui::PopStyleColor();
+                ImGui::PopStyleColor();
+                ImGui::PopStyleColor();
+                ImGui::PopStyleColor();
+                ImGui::PopStyleColor();
+                ImGui::PopStyleColor();
+                ImGui::PopStyleColor();
+                ImGui::PopStyleColor();
 
-                ImGui::PopStyleColor();
-                ImGui::PopStyleColor();
-                ImGui::PopStyleColor();
-                ImGui::PopStyleColor();
-                ImGui::PopStyleColor();
-                ImGui::PopStyleColor();
-                ImGui::PopStyleColor();
-                ImGui::PopStyleColor();
-                ImGui::PopStyleColor();
-                ImGui::PopStyleColor();
+
 
                 if(m_RenderDebugWindow)
                 {
                     RenderDebugWindow();
                 }
+
+                if(m_RenderDemoWindow)
+                {
+                    ImGui::ShowDemoWindow();
+                }
             }
 
-            ImGui::PopFont();
+            //ImGui::PopFont();
 
             ImGui::Render();
     
@@ -171,7 +183,7 @@ namespace Loggerr
             {
                 if(ImGui::MenuItem("New Connection", nullptr, false, true))
                 {
-                    // TODO: Open new connection
+                    AddPanel(std::make_shared<DashboardIPanel>());
                 }
                 ImGui::EndMenu();
             }
@@ -194,16 +206,6 @@ namespace Loggerr
         m_Panels.push_back(panel);
     }
 
-    bool Application::IsAnyDashboardActive(){
-        for (const auto& panel : m_Panels) {
-            if (dynamic_cast<DashboardIPanel*>(panel.get())) {
-                if(panel.get()->m_Active)
-                    return true;
-            }
-        }
-        return false;       
-    }
-
     void Application::RenderDebugWindow()
     {
         if(ImGui::Begin("Debug Window", &m_RenderDebugWindow, 
@@ -215,18 +217,19 @@ namespace Loggerr
             ImGui::Text("FPS: %.2f", ImGui::GetIO().Framerate);
             ImGui::Text("Display Size: %d x %d", (int)ImGui::GetIO().DisplaySize.x, (int)ImGui::GetIO().DisplaySize.y);
             ImGui::Text("Time Spent Rendering: %.2f ms", 1000.0f / ImGui::GetIO().Framerate);
+            ImGui::Text("Panels Active: %zu", m_Panels.size());
             ImGui::Text("Panel ID Counter: %zu", IPanel::GetPanelIDCounter());
             ImGui::Text("Panel Destroyed Count: %zu", IPanel::GetPanelDestroyedCount());
             ImGui::Text("App Runtime: %.2f seconds", glfwGetTime());
             ImGui::Separator();
             if(ImGui::Button("Add Empty Dashboard Panel", ImVec2(200, 0)))
             {
-                AddPanel(std::make_shared<DashboardIPanel>());
+                // Todo
             }
 
             if(ImGui::Button("Show ImGui Demo pannel", ImVec2(200, 0)))
             {
-                ImGui::ShowDemoWindow();
+                m_RenderDemoWindow = true;
             }
         }
         ImGui::End();

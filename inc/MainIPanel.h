@@ -4,10 +4,10 @@
     There can only be one in existence at a time.
 */
 
+#include "pch.h"
 #include "IPanel.h"
-#include "Headers.h"
 
-namespace Loggerr
+namespace APPLICATION_NAME
 {
     class MainIPanel : public IPanel
     {

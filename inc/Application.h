@@ -4,31 +4,39 @@
 #include <list>
 #include <memory>
 
-#include "Headers.h"
+#include "pch.h"
 
 #include "IPanel.h"
+#include "MainIPanel.h"
+#include "DashboardIPanel.h"
+#include "Terminal.h"
 
 extern "C" {
     #include <windows.h>
     #include <psapi.h>
 }
 
-namespace Loggerr
+namespace APPLICATION_NAME
 {
     class Application
     {
     private:
         /* GLFW window */
         GLFWwindow* m_Window = nullptr;                      
-        /* List of pannels to be rendered */
+
+        // List containing panels rendered by application
         std::list<std::shared_ptr<IPanel>> m_Panels;
 
-        bool m_RenderDebugWindow = false;
+        // Flag to render debug window 
+        bool m_RenderDebugWindow = true;
+        bool m_RenderDemoWindow = false;
+
+        Terminal *terminal = nullptr;
         
-    public:
+        public:
         static Application* getInstance();
         void Run();
-        bool IsAnyDashboardActive();
+        ImFont* TERMINAL_FONT = nullptr;
         
     private:
 

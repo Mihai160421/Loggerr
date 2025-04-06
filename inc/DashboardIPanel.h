@@ -1,28 +1,16 @@
 #pragma once
+#include "pch.h"
 #include "IPanel.h"
-#include "LogIPanel.h"
-#include "headers.h"
-#include <list>
-#include <memory>
+#include "MainIPanel.h"
 
-namespace Loggerr
+namespace APPLICATION_NAME
 {
-    class DashboardIPanel : public IPanel, public std::enable_shared_from_this<DashboardIPanel>
+    class DashboardIPanel : public IPanel
     {
-        public:
-            // List of log panels to be rendered
-            std::list<std::unique_ptr<LogIPanel>> m_LogPanels;
-        private:
-            // Window size
-            ImVec2 m_WindowSize = {0, 0}; /* Drawable available space on dashboard */
-            bool m_PreferencePannel = false;
-        public:
-            DashboardIPanel();
-            void OnRender() override;
-            void AddLogPanel();
-            size_t GetLogPanelCount() const { return m_LogPanels.size(); } // Get the number of log panels
-
-        private:
-            void RenderLogPanels();
+    public:
+        DashboardIPanel();
+        void OnRender() override;
+    private:
+        void RenderPopUpContext();
     };
 }

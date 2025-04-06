@@ -7,14 +7,15 @@
 */
 #pragma once
 
-#include "Headers.h"
+#include "pch.h"
+
 #include <stdint.h>
 #include <stdio.h>
 #include <iostream>
 #include <list>
 #include <memory>
 
-namespace Loggerr
+namespace APPLICATION_NAME
 {
     class IPanel {
         public:
@@ -33,7 +34,7 @@ namespace Loggerr
             
         public:
             virtual ~IPanel();
-            
+
             virtual void OnRender() = 0;
             
             void SetPanelName(const char* name);
@@ -55,7 +56,6 @@ namespace Loggerr
             void UpdateInternalState();
             
         protected:
-            IPanel();
-            IPanel(std::weak_ptr<IPanel> owner) : owner(owner) {};
+            IPanel(const char* PanelName = "Panel"); 
     };
 }
