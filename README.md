@@ -1,4 +1,4 @@
-DockTerm
+#DockTerm
 DockTerm is a modern terminal emulator inspired by tools like Tera Term, PuTTY, and MobaXTerm. It aims to provide a clean, extensible interface for developers, engineers, and power users who work with serial (COM), SSH, and other types of connections.
 
 ✨ Key Features (in progress)
