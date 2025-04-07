@@ -23,7 +23,7 @@ namespace APPLICATION_NAME
             bool m_Active = false;
         
         private:
-            std::string m_PanelName = "Panel";      /* Panel name                               */
+            std::string m_PanelName = std::string("Panel");      /* Panel name                               */
             uint64_t m_ID = 0;                      /* Panel unique id                          */
             ImGuiID m_DockspaceID = 0;              /* Panel Dockspace ID if any                */
             std::weak_ptr<IPanel> owner;            /* The Window owner the panel belongs to    */

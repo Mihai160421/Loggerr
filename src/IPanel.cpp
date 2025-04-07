@@ -46,16 +46,13 @@ namespace APPLICATION_NAME
 
     void IPanel::SetPanelName(const char* name)
     {
-        m_PanelName = name; 
-        m_PanelName += "##"; 
-        m_PanelName += std::to_string(m_ID); 
+        m_PanelName = std::string(name) + "##" + std::to_string(m_ID); 
     }
 
     void IPanel::SetPanelName(std::string name)
     {
-        m_PanelName = name;
-        m_PanelName += "##"; 
-        m_PanelName += std::to_string(m_ID);
+        m_PanelName = name + "##" + std::to_string(m_ID); 
+
     }
 
     uint64_t IPanel::GetID() const { 

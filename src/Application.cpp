@@ -65,7 +65,7 @@ namespace APPLICATION_NAME
     {
         terminal = new Terminal("Test Terminal");
        
-        TERMINAL_FONT = ImGui::GetIO().Fonts->AddFontFromFileTTF("fonts/Roboto-Medium.ttf", 19.0f);
+        TERMINAL_FONT = ImGui::GetIO().Fonts->AddFontFromFileTTF("fonts/Roboto-Medium.ttf", 16.0f);
         //ImGui::GetIO().Fonts->Build() ;
 
         // Add the main panel first in the panels list
