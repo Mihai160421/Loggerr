@@ -117,15 +117,12 @@ namespace APPLICATION_NAME
     private:
         uint64_t m_RowSize   = 0;               // Number of characters that fit on a row
         uint64_t m_ColSize   = 0;               // Number of characters that fit on a column
-        uint64_t m_Wraps     = 0;               // Number of lines wraps
         uint64_t m_LinesRendered    = 0;        // Number of lines wraps
         uint64_t m_CellsRendered    = 0;        // Number of lines wraps
         ImVec2 m_CSize  = {0, 0};               // Size of a caracter
         ImVec2 m_MouseRelPositon;                // Mouse relative position to window terminal
         Cell m_HoveredCell;
         std::string m_Name;
-
-        bool m_WrapAround = false;
 
         bool m_DebugWindow = true;
         std::list<DebugLogs> m_DebugLogs;
@@ -179,6 +176,6 @@ namespace APPLICATION_NAME
 
         static void VT100ParserCallback(struct vtparse* parser, vtparse_action_t action, unsigned char ch);
 
-        ImVec2 GetMouseRelativePositionToContent();
+        static ImVec2 GetAverageCharacterSize();
     };
 }

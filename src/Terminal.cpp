@@ -1,5 +1,6 @@
 #include "Terminal.h"
 
+#define TAB_HEIGTH (22.5f) // TODO find a way to get the actual height
 
 namespace APPLICATION_NAME
 {
@@ -19,31 +20,20 @@ namespace APPLICATION_NAME
 
     }   
 
-    ImVec2 Terminal::GetMouseRelativePositionToContent()
+    ImVec2 Terminal::GetAverageCharacterSize()
     {
-        // Obține poziția globală a mouse-ului
-        ImVec2 mousePos = ImGui::GetMousePos();
+        ImVec2 maxSize = ImVec2(0, 0);
+        char str[2] = {0, 0};
 
-        // Poziția ferestrei în coordonate globale
-        ImVec2 windowPos = ImGui::GetWindowPos();
+        for (char c = 32; c < 127; ++c)
+        {
+            str[0] = c;
+            ImVec2 size = ImGui::CalcTextSize(str);
+            if (size.x > maxSize.x) maxSize.x = size.x;
+            if (size.y > maxSize.y) maxSize.y = size.y;
+        }
 
-        //Imec2 contentRegionAvail = ImGui::GetContentRegionAvail();
-
-        // Calculăm poziția mouse-ului relativ la zona de conținut
-        ImVec2 mouseRelativeToContent;
-        mouseRelativeToContent.x = mousePos.x - windowPos.x;
-        mouseRelativeToContent.y = mousePos.y - windowPos.y;
-        mouseRelativeToContent.x += ImGui::GetScrollX();
-        mouseRelativeToContent.y += ImGui::GetScrollY();
-
-        // // Verifică dacă mouse-ul este în zona disponibilă de conținut
-        // if (mouseRelativeToContent.x >= 0 && mouseRelativeToContent.x <= contentRegionAvail.x &&
-        //     mouseRelativeToContent.y >= 0 && mouseRelativeToContent.y <= contentRegionAvail.y) {
-        //     return mouseRelativeToContent;
-        // } else
-        // {
-            return mouseRelativeToContent;
-        //}
+        return maxSize;
     }
 
     void Terminal::RenderTerminal(ImFont *font)
@@ -62,23 +52,13 @@ namespace APPLICATION_NAME
 
         if(ImGui::Begin(m_Name.c_str(), nullptr, ImGuiWindowFlags_NoSavedSettings))
         {
-            #define TAB_HEIGTH (22.5f) // TODO find a way to get the actual height
 
             auto AvailableDrawing = ImGui::GetContentRegionAvail();
 
             if(m_CSize.x == 0 && m_CSize.y == 0)
             {
-                ImVec2 maxSize = ImVec2(0, 0);
-                char str[2] = {0, 0};
-
-                for (char c = 32; c < 127; ++c)
-                {
-                    str[0] = c;
-                    ImVec2 size = ImGui::CalcTextSize(str);
-                    if (size.x > maxSize.x) maxSize.x = size.x;
-                    if (size.y > maxSize.y) maxSize.y = size.y;
-                }
-                m_CSize = maxSize;
+                
+                m_CSize = GetAverageCharacterSize();
             }
 
             m_RowSize = static_cast<uint64_t>(AvailableDrawing.x / m_CSize.x); // Get how many characters fit at this moment on a row
@@ -87,19 +67,20 @@ namespace APPLICATION_NAME
             // First set the scrolling to match the size of m_Buffer rows
             ImVec2 RegionSize(0, m_ScreenBuffer.Rows() * m_CSize.y);
             ImGui::Dummy(RegionSize);
+            
             if (ImGui::GetScrollY() >= ImGui::GetScrollMaxY())
             {
-                // Set auto scroll if already at the bottom
                 ImGui::SetScrollHereY(1.0f);
             }
-            float ScrollYPosition = ImGui::GetScrollY();
-            ImVec2 RenderCursor(0, TAB_HEIGTH + ScrollYPosition);
 
-            m_Wraps = 0;
+            float ScrollYPosition = ImGui::GetScrollY();
+            ImVec2 RenderCursorPos(0, TAB_HEIGTH + ScrollYPosition);
+
             m_LinesRendered = 0;
             m_CellsRendered = 0;
             uint64_t lineStartIndex = static_cast<uint64_t>(ScrollYPosition / m_CSize.y);
             const auto start = m_ScreenBuffer.m_Buffer->begin() + lineStartIndex;
+            
             for (auto it = start; it <= m_ScreenBuffer.m_Buffer->end(); ++it)
             {
                 for (size_t i = 0; i < it->size(); ++i)
@@ -109,47 +90,76 @@ namespace APPLICATION_NAME
                     const char _r[2] = {cell.character, '\0'};
                     ImVec2 CharacterSize = ImGui::CalcTextSize(_r);
                     float CharacterWidth = CharacterSize.x;
-                    ImGui::SetCursorPos(RenderCursor);
+                    ImGui::SetCursorPos(RenderCursorPos);
 
-                    // Check if rendering area for the character is hovered
-                    ImVec2 Rectangle(ImGui::GetCursorScreenPos().x + CharacterSize.x, ImGui::GetCursorScreenPos().y + CharacterSize.y);
-
-                    if(ImGui::IsMouseHoveringRect(ImGui::GetCursorScreenPos(), Rectangle))
+                    if(ImGui::IsMouseDragging(ImGuiMouseButton_Left))
                     {
-                        if(ImGui::IsMouseDragging(ImGuiMouseButton_Left))
+                        ImVec2 Rectangle(ImGui::GetCursorScreenPos().x + CharacterSize.x, ImGui::GetCursorScreenPos().y + CharacterSize.y);
+                        if(ImGui::IsMouseHoveringRect(ImGui::GetCursorScreenPos(), Rectangle))
                         {
-                            m_IsSelectableActive = true;
-
-                            if(m_IsHeadSelected == false)
+                            if(ImGui::IsMouseDragging(ImGuiMouseButton_Left))
                             {
-                                m_IsHeadSelected = true;
-                                // Select tail and head
-                                m_SelectableTail.x = i;                
-                                m_SelectableTail.y = lineStartIndex;   
-                                m_SelectableHead.x = i;              
-                                m_SelectableHead.y = lineStartIndex; 
+                                m_IsSelectableActive = true;
+    
+                                if(m_IsHeadSelected == false)
+                                {
+                                    m_IsHeadSelected = true;
+                                    // Select tail and head
+                                    m_SelectableTail.x = i;                
+                                    m_SelectableTail.y = lineStartIndex;   
+                                    m_SelectableHead.x = i;              
+                                    m_SelectableHead.y = lineStartIndex; 
+                                }
+                                else
+                                {
+                                    // Select only head (it got moved maybe)
+                                    m_SelectableHead.x = i;             
+                                    m_SelectableHead.y = lineStartIndex;
+                                }
                             }
-                            else
+                        }
+                        else
+                        {
+                            auto LineSize = it->size();
+                         
+                            if(i == LineSize-1)// For efficienty do this only for the latest character
                             {
-                                // Select only head (it got moved maybe)
-                                m_SelectableHead.x = i;             
-                                m_SelectableHead.y = lineStartIndex;
+                                auto WinPos = ImGui::GetWindowPos();
+
+                                const ImVec2 r_min(ImGui::GetCursorScreenPos());
+                                const ImVec2 r_max(AvailableDrawing.x + WinPos.x, ImGui::GetCursorScreenPos().y+CharacterSize.y);
+                                if(ImGui::IsMouseHoveringRect(r_min, r_max))
+                                {
+                                    if(ImGui::IsMouseDragging(ImGuiMouseButton_Left))
+                                    {
+                                        m_IsSelectableActive = true;
+            
+                                        if(m_IsHeadSelected == false)
+                                        {
+
+                                            m_IsHeadSelected = true;
+                                            // Select tail and head
+                                            m_SelectableTail.x = LineSize-1;                
+                                            m_SelectableTail.y = lineStartIndex;   
+                                        }
+                                        m_SelectableHead.x = 0;             
+                                        m_SelectableHead.y = lineStartIndex;
+                                    }
+                                }
                             }
                         }
                     }
-
+                    ImVec2 Rectangle(ImGui::GetCursorScreenPos().x + CharacterSize.x, ImGui::GetCursorScreenPos().y + CharacterSize.y);
                     // Check if column is part of selectable area and drow the selectable background indicator
                     {
                         // Line Range
                         if(IsPartOfSelectableArea(lineStartIndex, i))
                         {
-
                             ImDrawList* draw_list = ImGui::GetWindowDrawList();
                             const ImU32 icon_bg_color = ImGui::GetColorU32(IM_COL32(51, 153, 255, 127));
                             draw_list->AddRectFilled(ImGui::GetCursorScreenPos(), Rectangle, icon_bg_color);
 
                             ImGui::TextColored(Terminal::VT100ColorToImVec2(VT100_BRIGHT_WHITE), _r);
-
                         }
                         else
                         {
@@ -163,33 +173,16 @@ namespace APPLICATION_NAME
                             ImGui::TextColored(Terminal::VT100ColorToImVec2(cell.foreground), _r);
                         }
                     }
-
-
                     m_CellsRendered++;
-                   
-                    if(m_WrapAround && RenderCursor.x >= AvailableDrawing.x - CharacterWidth)
-                    {
-                        // Wrap around
-                        m_Wraps++;
-                        
-                        RenderCursor.y += m_CSize.y;
-                        RegionSize.y += m_CSize.y;  // Adjust the region for unexpected wrap
-
-                        RenderCursor.x = 0;
-                    }
-                    else
-                    {
-                        RenderCursor.x += CharacterWidth;
-                    }
-
+                    RenderCursorPos.x += CharacterWidth;
                 }
 
-                if(RenderCursor.y >= RegionSize.y)
+                if(RenderCursorPos.y >= RegionSize.y)
                 {
                     break;
                 }
-                RenderCursor.y += m_CSize.y;
-                RenderCursor.x = 0;
+                RenderCursorPos.y += m_CSize.y;
+                RenderCursorPos.x = 0;
 
                 lineStartIndex++;
             }
@@ -391,10 +384,6 @@ namespace APPLICATION_NAME
 
             ImGui::SameLine();
 
-            ImGui::Checkbox("Wrap", &m_WrapAround);
-
-            ImGui::SameLine();
-
             if(ImGui::Button("Clear Selectable"))
             {
                 m_IsSelectableActive = false;
@@ -430,7 +419,6 @@ namespace APPLICATION_NAME
             }
 
             ImGui::Text("MouseRelPos: %f, %f", m_MouseRelPositon.x, m_MouseRelPositon.y);
-            ImGui::Text("Text Wraps: %d", m_Wraps);
             ImGui::Text("LinesRendered: %d", m_LinesRendered);
             ImGui::Text("CellsRendered: %d", m_CellsRendered);
             ImGui::Text("HoveredCharacter: %c", m_HoveredCell.character);
