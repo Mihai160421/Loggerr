@@ -87,8 +87,7 @@ namespace APPLICATION_NAME
                 {
                     const Cell& cell = (*it)[i];
 
-                    const char _r[2] = {cell.character, '\0'};
-                    ImVec2 CharacterSize = ImGui::CalcTextSize(_r);
+                    ImVec2 CharacterSize = ImGui::CalcTextSize(cell.character);
                     float CharacterWidth = CharacterSize.x;
                     ImGui::SetCursorPos(RenderCursorPos);
 
@@ -159,7 +158,7 @@ namespace APPLICATION_NAME
                             const ImU32 icon_bg_color = ImGui::GetColorU32(IM_COL32(51, 153, 255, 127));
                             draw_list->AddRectFilled(ImGui::GetCursorScreenPos(), Rectangle, icon_bg_color);
 
-                            ImGui::TextColored(Terminal::VT100ColorToImVec2(VT100_BRIGHT_WHITE), _r);
+                            ImGui::TextColored(Terminal::VT100ColorToImVec2(VT100_BRIGHT_WHITE), cell.character);
                         }
                         else
                         {
@@ -170,7 +169,7 @@ namespace APPLICATION_NAME
                                 m_IsHeadSelected = false;
                             }
 
-                            ImGui::TextColored(Terminal::VT100ColorToImVec2(cell.foreground), _r);
+                            ImGui::TextColored(Terminal::VT100ColorToImVec2(cell.foreground), cell.character);
                         }
                     }
                     m_CellsRendered++;

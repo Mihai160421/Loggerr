@@ -41,7 +41,11 @@ namespace APPLICATION_NAME
     };
 
     struct Cell {
-        char character = ' ';
+        /*
+            When printing the character it is required to use a null terminated string
+            For optimization purposes we pre-compute the caracter as a null terminated string
+        */
+        char character[2] = {' ', '\0'};
         VT100Color foreground = VT100_WHITE;
         VT100Color background = VT100_BLACK; /* Not yet implemented */
         VT100Attributes attr;
@@ -51,7 +55,10 @@ namespace APPLICATION_NAME
         static Cell EMPTY_CELL() { Cell Empty; return Empty; };
     
         Cell(char c, VT100Color fg, VT100Color bg, const VT100Attributes& a)
-            : character(c), foreground(fg), background(bg), attr(a) {}
+            :foreground(fg), background(bg), attr(a) 
+            {
+                character[0] = c;
+            }
         
     };
 
