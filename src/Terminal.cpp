@@ -99,25 +99,22 @@ namespace APPLICATION_NAME
                         ImVec2 Rectangle(ImGui::GetCursorScreenPos().x + CharacterSize.x, ImGui::GetCursorScreenPos().y + CharacterSize.y);
                         if(ImGui::IsMouseHoveringRect(ImGui::GetCursorScreenPos(), Rectangle))
                         {
-                            if(ImGui::IsMouseDragging(ImGuiMouseButton_Left))
+                            m_IsSelectableActive = true;
+
+                            if(m_IsHeadSelected == false)
                             {
-                                m_IsSelectableActive = true;
-    
-                                if(m_IsHeadSelected == false)
-                                {
-                                    m_IsHeadSelected = true;
-                                    // Select tail and head
-                                    m_SelectableTail.x = i;                
-                                    m_SelectableTail.y = lineStartIndex;   
-                                    m_SelectableHead.x = i;              
-                                    m_SelectableHead.y = lineStartIndex; 
-                                }
-                                else
-                                {
-                                    // Select only head (it got moved maybe)
-                                    m_SelectableHead.x = i;             
-                                    m_SelectableHead.y = lineStartIndex;
-                                }
+                                m_IsHeadSelected = true;
+                                // Select tail and head
+                                m_SelectableTail.x = i;                
+                                m_SelectableTail.y = lineStartIndex;   
+                                m_SelectableHead.x = i;              
+                                m_SelectableHead.y = lineStartIndex; 
+                            }
+                            else
+                            {
+                                // Select only head (it got moved maybe)
+                                m_SelectableHead.x = i;             
+                                m_SelectableHead.y = lineStartIndex;
                             }
                         }
                         else
