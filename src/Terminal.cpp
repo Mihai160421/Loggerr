@@ -52,12 +52,10 @@ namespace APPLICATION_NAME
 
         if(ImGui::Begin(m_Name.c_str(), nullptr, ImGuiWindowFlags_NoSavedSettings))
         {
-
             auto AvailableDrawing = ImGui::GetContentRegionAvail();
 
             if(m_CSize.x == 0 && m_CSize.y == 0)
             {
-                
                 m_CSize = GetAverageCharacterSize();
             }
 
@@ -80,15 +78,20 @@ namespace APPLICATION_NAME
             m_CellsRendered = 0;
             uint64_t lineStartIndex = static_cast<uint64_t>(ScrollYPosition / m_CSize.y);
             const auto start = m_ScreenBuffer.m_Buffer->begin() + lineStartIndex;
+            auto end = start + m_ColSize;
+            if(end > m_ScreenBuffer.m_Buffer->end())
+            {
+                end = m_ScreenBuffer.m_Buffer->end();
+            }
             
-            for (auto it = start; it <= m_ScreenBuffer.m_Buffer->end(); ++it)
+            for (auto it = start; it <= end; ++it)
             {
                 for (size_t i = 0; i < it->size(); ++i)
                 {
                     const Cell& cell = (*it)[i];
-
-                    ImVec2 CharacterSize = ImGui::CalcTextSize(cell.character);
-                    float CharacterWidth = CharacterSize.x;
+                    const ImVec2 CharacterSize = ImGui::CalcTextSize(cell.character);
+                    const float CharacterWidth = CharacterSize.x;
+                    
                     ImGui::SetCursorPos(RenderCursorPos);
 
                     if(ImGui::IsMouseDragging(ImGuiMouseButton_Left))
@@ -148,17 +151,18 @@ namespace APPLICATION_NAME
                             }
                         }
                     }
-                    ImVec2 Rectangle(ImGui::GetCursorScreenPos().x + CharacterSize.x, ImGui::GetCursorScreenPos().y + CharacterSize.y);
+                    
                     // Check if column is part of selectable area and drow the selectable background indicator
                     {
                         // Line Range
                         if(IsPartOfSelectableArea(lineStartIndex, i))
                         {
+                            ImVec2 Rectangle(ImGui::GetCursorScreenPos().x + CharacterSize.x, ImGui::GetCursorScreenPos().y + CharacterSize.y);
                             ImDrawList* draw_list = ImGui::GetWindowDrawList();
-                            const ImU32 icon_bg_color = ImGui::GetColorU32(IM_COL32(51, 153, 255, 127));
+                            const ImU32 icon_bg_color = ImGui::GetColorU32(IM_COL32(255, 255, 255, 255));
                             draw_list->AddRectFilled(ImGui::GetCursorScreenPos(), Rectangle, icon_bg_color);
 
-                            ImGui::TextColored(Terminal::VT100ColorToImVec2(VT100_BRIGHT_WHITE), cell.character);
+                            ImGui::TextColored(Terminal::VT100ColorToImVec2(VT100_BLACK), cell.character);
                         }
                         else
                         {
@@ -174,11 +178,6 @@ namespace APPLICATION_NAME
                     }
                     m_CellsRendered++;
                     RenderCursorPos.x += CharacterWidth;
-                }
-
-                if(RenderCursorPos.y >= RegionSize.y)
-                {
-                    break;
                 }
                 RenderCursorPos.y += m_CSize.y;
                 RenderCursorPos.x = 0;
