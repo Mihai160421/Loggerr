@@ -43,7 +43,10 @@ include_directories(
     ${CMAKE_SOURCE_DIR}/vendors/imgui/backends
     ${CMAKE_SOURCE_DIR}/vendors/GLFW
     ${CMAKE_SOURCE_DIR}/vendors/vtparse
+    ${CMAKE_SOURCE_DIR}/vendors/freetype
 )
+# Include header files
+
 
 
 add_library(imgui STATIC ${IMGUI_SOURCES})
@@ -60,7 +63,7 @@ add_executable(${PROJECT_NAME} ${SOURCE_FILE})
 target_precompile_headers(${PROJECT_NAME} PRIVATE  ${CMAKE_SOURCE_DIR}/inc/pch.h)
 
 # Link GLFW OPENGL IMGUI VTPARSER
-target_link_libraries(${PROJECT_NAME} PRIVATE glfw opengl32 imgui vtparse)
+target_link_libraries(${PROJECT_NAME} PRIVATE glfw opengl32 imgui vtparse ${CMAKE_SOURCE_DIR}/vendors/freetype/freetype.lib)
 
 # Copy required assets
 file(COPY ${CMAKE_SOURCE_DIR}/vendors/imgui/misc/fonts/ DESTINATION ${CMAKE_BINARY_DIR}/fonts)
