@@ -52,7 +52,8 @@ namespace APPLICATION_NAME
 
         if(ImGui::Begin(m_Name.c_str(), nullptr, ImGuiWindowFlags_NoSavedSettings))
         {
-            auto AvailableDrawing = ImGui::GetContentRegionAvail();
+            const ImVec2 AvailableDrawing = ImGui::GetContentRegionAvail();
+            const ImVec2 WindowPos        = ImGui::GetWindowPos();
 
             if(m_CSize.x == 0 && m_CSize.y == 0)
             {
@@ -70,21 +71,19 @@ namespace APPLICATION_NAME
             {
                 ImGui::SetScrollHereY(1.0f);
             }
+            const float ScrollYPosition = ImGui::GetScrollY();
+            
+            uint64_t lineStartIndex = static_cast<uint64_t>(ScrollYPosition / m_CSize.y);
+            uint64_t lineEndIndex = static_cast<uint64_t>(((WindowPos.y + AvailableDrawing.y + ScrollYPosition)) / m_CSize.y)-1;
+            lineEndIndex = std::min(lineEndIndex, static_cast<uint64_t>(m_ScreenBuffer.m_Buffer->size()));
 
-            float ScrollYPosition = ImGui::GetScrollY();
-            ImVec2 RenderCursorPos(0, TAB_HEIGTH + ScrollYPosition);
-
+            const auto start = m_ScreenBuffer.m_Buffer->begin() + lineStartIndex;
+            const auto end =  m_ScreenBuffer.m_Buffer->begin() + lineEndIndex;
+            
             m_LinesRendered = 0;
             m_CellsRendered = 0;
-            uint64_t lineStartIndex = static_cast<uint64_t>(ScrollYPosition / m_CSize.y);
-            const auto start = m_ScreenBuffer.m_Buffer->begin() + lineStartIndex;
-            auto end = start + m_ColSize;
-            if(end > m_ScreenBuffer.m_Buffer->end())
-            {
-                end = m_ScreenBuffer.m_Buffer->end();
-            }
-            
-            for (auto it = start; it <= end; ++it)
+            ImVec2 RenderCursorPos(0, TAB_HEIGTH + ScrollYPosition);
+            for (auto it = start; it < end-1; ++it)
             {
                 for (size_t i = 0; i < it->size(); ++i)
                 {
@@ -286,7 +285,7 @@ namespace APPLICATION_NAME
                 {
                     // New cell
                     VT100Attributes atributes;
-                    Cell cell(ch, VT100_WHITE, VT100_BLACK, atributes);
+                    Cell cell(ch, VT100_BRIGHT_WHITE, VT100_BLACK, atributes);
 
                     self->m_ScreenBuffer.AddCell(cell);
                 }              
@@ -332,7 +331,7 @@ namespace APPLICATION_NAME
 
     void Terminal::TerminalRenderDebugWindow(bool* open)
     {
-        std::string name = m_Name + " Debug Window";
+        std::string name = m_Name + " Debug Window"; 
         if(ImGui::Begin(name.c_str(), open, ImGuiWindowFlags_NoSavedSettings))
         {
             if(ImGui::BeginChild("##LogWindow",  {1000, 400}))

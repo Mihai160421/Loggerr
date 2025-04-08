@@ -16,18 +16,18 @@ set(IMGUI_SOURCES
 
 
 # Set build type to Release if not specified
-if(NOT CMAKE_BUILD_TYPE)
-    set(CMAKE_BUILD_TYPE Release)
-endif()
+# if(NOT CMAKE_BUILD_TYPE)
+#     set(CMAKE_BUILD_TYPE Release)
+# endif()
 
-# Set optimization flags
-set(CMAKE_CXX_FLAGS_RELEASE "-O3 -DNDEBUG")
-set(CMAKE_C_FLAGS_RELEASE "-O3 -DNDEBUG")
+# # Set optimization flags
+# set(CMAKE_CXX_FLAGS_RELEASE "-O3 -DNDEBUG")
+# set(CMAKE_C_FLAGS_RELEASE "-O3 -DNDEBUG")
 
-# Optional: Enable warnings and C++17
-set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-add_compile_options(-Wall -Wextra -Wpedantic)
+# # Optional: Enable warnings and C++17
+# set(CMAKE_CXX_STANDARD 17)
+# set(CMAKE_CXX_STANDARD_REQUIRED ON)
+# add_compile_options(-Wall -Wextra -Wpedantic)
 
 
 #Setup vtparse

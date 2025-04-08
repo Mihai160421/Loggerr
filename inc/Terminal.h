@@ -46,7 +46,7 @@ namespace APPLICATION_NAME
             For optimization purposes we pre-compute the caracter as a null terminated string
         */
         char character[2] = {' ', '\0'};
-        VT100Color foreground = VT100_WHITE;
+        VT100Color foreground = VT100_BRIGHT_WHITE;
         VT100Color background = VT100_BLACK; /* Not yet implemented */
         VT100Attributes attr;
     
