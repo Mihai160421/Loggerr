@@ -43,7 +43,7 @@ include_directories(
     ${CMAKE_SOURCE_DIR}/vendors/imgui/backends
     ${CMAKE_SOURCE_DIR}/vendors/GLFW
     ${CMAKE_SOURCE_DIR}/vendors/vtparse
-    ${CMAKE_SOURCE_DIR}/vendors/freetype
+    ${CMAKE_SOURCE_DIR}/vendors/freetype/include
 )
 # Include header files
 
