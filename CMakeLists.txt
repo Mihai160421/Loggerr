@@ -14,22 +14,6 @@ set(IMGUI_SOURCES
     vendors/imgui/backends/imgui_impl_opengl3.cpp
 )
 
-
-# Set build type to Release if not specified
-# if(NOT CMAKE_BUILD_TYPE)
-#     set(CMAKE_BUILD_TYPE Release)
-# endif()
-
-# # Set optimization flags
-# set(CMAKE_CXX_FLAGS_RELEASE "-O3 -DNDEBUG")
-# set(CMAKE_C_FLAGS_RELEASE "-O3 -DNDEBUG")
-
-# # Optional: Enable warnings and C++17
-# set(CMAKE_CXX_STANDARD 17)
-# set(CMAKE_CXX_STANDARD_REQUIRED ON)
-# add_compile_options(-Wall -Wextra -Wpedantic)
-
-
 #Setup vtparse
 set(VTPARSE_SOURCES
     vendors/vtparse/vtparse_table.c
@@ -56,6 +40,13 @@ add_library(vtparse STATIC ${VTPARSE_SOURCES})
 add_subdirectory(vendors/glfw)
 include_directories(vendors/glfw/include)
 
+# Setup FreeType
+add_subdirectory(vendors/freetype)
+set(FT_WITH_HARFBUZZ OFF CACHE BOOL "" FORCE)
+set(FT_DISABLE_HARFBUZZ ON CACHE BOOL "" FORCE)
+set(FT_DISABLE_ZLIB ON CACHE BOOL "" FORCE)
+
+
 #Create executable
 add_executable(${PROJECT_NAME} ${SOURCE_FILE})
 
@@ -63,7 +54,7 @@ add_executable(${PROJECT_NAME} ${SOURCE_FILE})
 target_precompile_headers(${PROJECT_NAME} PRIVATE  ${CMAKE_SOURCE_DIR}/inc/pch.h)
 
 # Link GLFW OPENGL IMGUI VTPARSER
-target_link_libraries(${PROJECT_NAME} PRIVATE glfw opengl32 imgui vtparse ${CMAKE_SOURCE_DIR}/vendors/freetype/freetype.lib)
+target_link_libraries(${PROJECT_NAME} PRIVATE glfw opengl32 imgui vtparse freetype)
 
 # Copy required assets
 file(COPY ${CMAKE_SOURCE_DIR}/vendors/imgui/misc/fonts/ DESTINATION ${CMAKE_BINARY_DIR}/fonts)
