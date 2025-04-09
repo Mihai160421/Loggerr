@@ -66,7 +66,7 @@ namespace APPLICATION_NAME
     {
         enum ltype
         {
-            ERROR,
+            _ERROR,
             INFO,
             WARING,
         };

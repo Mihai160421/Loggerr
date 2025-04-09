@@ -1,4 +1,5 @@
 #include "Terminal.h"
+#include "Application.h"
 
 #define TAB_HEIGTH (22.5f) // TODO find a way to get the actual height
 
@@ -29,13 +30,30 @@ namespace APPLICATION_NAME
 
         ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0, 0));
         ImGui::PushStyleVar(ImGuiStyleVar_ItemInnerSpacing, ImVec2(0, 0));
-        
         ImGui::SetNextWindowDockID(MainIPanel::GetInstance()->GetDockspaceID());
 
         if(ImGui::Begin(m_Name.c_str(), nullptr, ImGuiWindowFlags_NoSavedSettings))
         {
             const ImVec2 AvailableDrawing = ImGui::GetContentRegionAvail();
             const ImVec2 WindowPos        = ImGui::GetWindowPos();
+
+            FT_Face face;
+
+            // if (FT_New_Face(APPLICATION_NAME::Application::getInstance()->GetFTLibHandler(), "fonts/Roboto-Medium.ttf", 0, &face)) {
+            //     std::cerr << "Failed to load font" << std::endl;
+            // }else
+            // {
+            //     FT_Set_Pixel_Sizes(face, 0, 48); // font height in pixels
+
+            //     char ch = 'A';
+            //     if (FT_Load_Char(face, ch, FT_LOAD_RENDER)) {
+            //         std::cerr << "Failed to load Glyph" << std::endl;
+            //     }else{
+            //         FT_Bitmap& bitmap = face->glyph->bitmap;
+            //     }
+            // }
+
+
         }
         ImGui::End();
         ImGui::PopStyleVar(2);
@@ -192,7 +210,7 @@ namespace APPLICATION_NAME
                 for (auto log : m_DebugLogs)
                 {
                     it++;
-                    if(log.type == log.ERROR)
+                    if(log.type == log._ERROR)
                     {
                         ImGui::TextColored({1.f, 0.f, 0.f, 1.f}, "%d. [ERR] %s",    it,  log.log.c_str());
                     }else if (log.type == log.WARING)
