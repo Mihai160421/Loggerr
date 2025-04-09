@@ -5,7 +5,6 @@ project(Loggerr VERSION 1.0)
 message(STATUS "Compiler: ${CMAKE_CXX_COMPILER_ID}")
 file(GLOB SOURCE_FILE  ${CMAKE_SOURCE_DIR}/src/*.cpp)
 
-# Setup imgui
 set(IMGUI_SOURCES
     vendors/imgui/imgui.cpp
     vendors/imgui/imgui_demo.cpp
@@ -15,11 +14,12 @@ set(IMGUI_SOURCES
     vendors/imgui/backends/imgui_impl_glfw.cpp
     vendors/imgui/backends/imgui_impl_opengl3.cpp
 )
-
-#Setup vtparse
 set(VTPARSE_SOURCES
     vendors/vtparse/vtparse_table.c
     vendors/vtparse/vtparse.c
+)
+set(GLAD_SOURCES
+    vendors/glad/glad.c
 )
 
 include_directories(
@@ -30,11 +30,11 @@ include_directories(
     ${CMAKE_SOURCE_DIR}/vendors/GLFW
     ${CMAKE_SOURCE_DIR}/vendors/vtparse
     ${CMAKE_SOURCE_DIR}/vendors/freetype/include
-    ${CMAKE_SOURCE_DIR}/vendors/glew/include
 )
 
 add_library(imgui STATIC ${IMGUI_SOURCES})
 add_library(vtparse STATIC ${VTPARSE_SOURCES})
+add_library(glad STATIC ${GLAD_SOURCES})
 
 # Setup GLFW
 add_subdirectory(vendors/glfw)
@@ -57,8 +57,7 @@ add_executable(${PROJECT_NAME} ${SOURCE_FILE})
 target_precompile_headers(${PROJECT_NAME} PRIVATE  ${CMAKE_SOURCE_DIR}/inc/pch.h)
 
 # Link GLFW OPENGL IMGUI VTPARSER
-target_link_libraries(${PROJECT_NAME} PRIVATE glfw opengl32 imgui vtparse freetype)
-target_link_libraries(${PROJECT_NAME} PRIVATE ${CMAKE_SOURCE_DIR}/vendors/glew/glew32s.lib)
+target_link_libraries(${PROJECT_NAME} PRIVATE glfw opengl32 imgui vtparse freetype glad)
 
 # Copy required assets
 file(COPY ${CMAKE_SOURCE_DIR}/vendors/imgui/misc/fonts/ DESTINATION ${CMAKE_BINARY_DIR}/fonts)
