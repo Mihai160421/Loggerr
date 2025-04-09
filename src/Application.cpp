@@ -1,6 +1,5 @@
 #include "Application.h"
 
-#include "Terminal.h"
 
 #define GLSL_VERSION ("#version 130")
 
@@ -44,7 +43,7 @@ namespace APPLICATION_NAME
         
         glfwMakeContextCurrent(m_Window);
         glfwSwapInterval(1); // Enable vsync
-
+    
         // Setup Dear ImGui context
         IMGUI_CHECKVERSION();
         ImGui::CreateContext();
@@ -59,10 +58,6 @@ namespace APPLICATION_NAME
         // Setup Platform/Renderer backends
         ImGui_ImplGlfw_InitForOpenGL(m_Window, true);
         ImGui_ImplOpenGL3_Init(GLSL_VERSION);
-
-        if (FT_Init_FreeType(&FreeTypeHandler)) {
-            std::cerr << "Could not init FreeType Library" << std::endl;
-        }
 
     }
 
@@ -165,11 +160,6 @@ namespace APPLICATION_NAME
         }
 
         Shutdown();
-    }
-
-    FT_Library Application::GetFTLibHandler()
-    {
-        return FreeTypeHandler;
     }
 
     void Application::Shutdown()
