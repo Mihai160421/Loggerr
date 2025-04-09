@@ -17,24 +17,8 @@ namespace APPLICATION_NAME
 
     Terminal::~Terminal()
     {
-
+        // TODO Check what resources we should free
     }   
-
-    ImVec2 Terminal::GetAverageCharacterSize()
-    {
-        ImVec2 maxSize = ImVec2(0, 0);
-        char str[2] = {0, 0};
-
-        for (char c = 32; c < 127; ++c)
-        {
-            str[0] = c;
-            ImVec2 size = ImGui::CalcTextSize(str);
-            if (size.x > maxSize.x) maxSize.x = size.x;
-            if (size.y > maxSize.y) maxSize.y = size.y;
-        }
-
-        return maxSize;
-    }
 
     void Terminal::RenderTerminal()
     {
@@ -52,26 +36,6 @@ namespace APPLICATION_NAME
         {
             const ImVec2 AvailableDrawing = ImGui::GetContentRegionAvail();
             const ImVec2 WindowPos        = ImGui::GetWindowPos();
-
-            if(m_CSize.x == 0 && m_CSize.y == 0)
-            {
-                m_CSize = GetAverageCharacterSize();
-            }
-
-            m_RowSize = static_cast<uint64_t>(AvailableDrawing.x / m_CSize.x); // Get how many characters fit at this moment on a row
-            m_ColSize = static_cast<uint64_t>(AvailableDrawing.y / m_CSize.y); // Get how many characters fit at this moment on a column
-
-            // First set the scrolling to match the size of m_Buffer rows
-            ImVec2 RegionSize(0, m_ScreenBuffer.Rows() * m_CSize.y);
-            ImGui::Dummy(RegionSize);
-            
-            if (ImGui::GetScrollY() >= ImGui::GetScrollMaxY())
-            {
-                ImGui::SetScrollHereY(1.0f);
-            }
-            const float ScrollYPosition = ImGui::GetScrollY();
-            
-
         }
         ImGui::End();
         ImGui::PopStyleVar(2);
@@ -127,12 +91,12 @@ namespace APPLICATION_NAME
             case VT100_BRIGHT_WHITE:
                 return ImVec4(255.0f / 255.0f, 255.0f / 255.0f, 255.0f / 255.0f, 1.0f);
             default:
-                return ImVec4(0.0f, 0.0f, 0.0f, 1.0f); // Valoare implicită
+                return ImVec4(0.0f, 0.0f, 0.0f, 1.0f);
         }
     }
 
     void Terminal::VT100ParserCallback(struct vtparse* parser, vtparse_action_t action, unsigned char ch) {
-        // Obtai the class instance
+        // Obtaine the class instance
         Terminal *self= static_cast<Terminal*>(parser->user_data);
         size_t& CursorPosX = self->m_ScreenBuffer.WriteCursor.x;
         size_t& CursorPosY = self->m_ScreenBuffer.WriteCursor.y;
@@ -325,50 +289,4 @@ namespace APPLICATION_NAME
             }
         }
     }
-    bool Terminal::IsPartOfSelectableArea(size_t line, size_t col)
-    {
-        if(!m_IsSelectableActive || !m_IsHeadSelected)
-            return false;
-
-        // Set the upper and lower coursor
-        Cursor *UP_SEL, *LOW_SEL;
-
-        if(m_SelectableTail.y < m_SelectableHead.y)
-        {
-            UP_SEL  = &m_SelectableTail;
-            LOW_SEL = &m_SelectableHead;
-        }
-        else
-        {
-            UP_SEL  = &m_SelectableHead;
-            LOW_SEL = &m_SelectableTail;
-        }
-
-        bool isLine = line >= UP_SEL->y && line <= LOW_SEL->y;
-        if(!isLine)
-            return false;
-        
-        if(UP_SEL->y == LOW_SEL->y) // Same line
-        {
-
-            return col >= std::min(UP_SEL->x, LOW_SEL->x) && col <= std::max(UP_SEL->x, LOW_SEL->x);
-        }
-
-        if(line == UP_SEL->y)
-        {
-            // Columns on first line
-            return col >= UP_SEL->x;
-        } 
-        else if (line == LOW_SEL->y)
-        {
-            return col <= LOW_SEL->x;
-        } else 
-        {
-            return true; // Intermediate lines
-        }
-
-
-        return false;
-    }
-
 }

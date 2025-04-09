@@ -126,7 +126,6 @@ namespace APPLICATION_NAME
         uint64_t m_ColSize   = 0;               // Number of characters that fit on a column
         uint64_t m_LinesRendered    = 0;        // Number of lines wraps
         uint64_t m_CellsRendered    = 0;        // Number of lines wraps
-        ImVec2 m_CSize  = {0, 0};               // Size of a caracter
         ImVec2 m_MouseRelPositon;                // Mouse relative position to window terminal
         Cell m_HoveredCell;
         std::string m_Name;
@@ -176,13 +175,9 @@ namespace APPLICATION_NAME
         void TerminalRenderDebugWindow(bool* open);
 
         void AddDebugLog(DebugLogs::ltype, std::string);
-
-        bool IsPartOfSelectableArea(size_t line, size_t col);
     private:
         static ImVec4 VT100ColorToImVec2(VT100Color color);
 
         static void VT100ParserCallback(struct vtparse* parser, vtparse_action_t action, unsigned char ch);
-
-        static ImVec2 GetAverageCharacterSize();
     };
 }
