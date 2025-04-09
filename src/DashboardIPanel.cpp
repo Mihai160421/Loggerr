@@ -20,7 +20,7 @@ namespace APPLICATION_NAME
 
         if(ImGui::Begin(GetPanelName(), &m_Open, ImGuiWindowFlags_NoSavedSettings))
         {
-
+            
         } ImGui::End();
     }
 

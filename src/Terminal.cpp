@@ -36,14 +36,12 @@ namespace APPLICATION_NAME
         return maxSize;
     }
 
-    void Terminal::RenderTerminal(ImFont *font)
+    void Terminal::RenderTerminal()
     {
         if(m_DebugWindow)
         {
             TerminalRenderDebugWindow(&m_DebugWindow);
         }
-
-        ImGui::PushFont(font);
 
         ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0, 0));
         ImGui::PushStyleVar(ImGuiStyleVar_ItemInnerSpacing, ImVec2(0, 0));
@@ -73,120 +71,10 @@ namespace APPLICATION_NAME
             }
             const float ScrollYPosition = ImGui::GetScrollY();
             
-            uint64_t lineStartIndex = static_cast<uint64_t>(ScrollYPosition / m_CSize.y);
-            uint64_t lineEndIndex = static_cast<uint64_t>(((WindowPos.y + AvailableDrawing.y + ScrollYPosition)) / m_CSize.y)-1;
-            lineEndIndex = std::min(lineEndIndex, static_cast<uint64_t>(m_ScreenBuffer.m_Buffer->size()));
 
-            const auto start = m_ScreenBuffer.m_Buffer->begin() + lineStartIndex;
-            const auto end =  m_ScreenBuffer.m_Buffer->begin() + lineEndIndex;
-            
-            m_LinesRendered = 0;
-            m_CellsRendered = 0;
-            ImVec2 RenderCursorPos(0, TAB_HEIGTH + ScrollYPosition);
-            for (auto it = start; it < end-1; ++it)
-            {
-                for (size_t i = 0; i < it->size(); ++i)
-                {
-                    const Cell& cell = (*it)[i];
-                    const ImVec2 CharacterSize = ImGui::CalcTextSize(cell.character);
-                    const float CharacterWidth = CharacterSize.x;
-                    
-                    ImGui::SetCursorPos(RenderCursorPos);
-
-                    if(ImGui::IsMouseDragging(ImGuiMouseButton_Left))
-                    {
-                        ImVec2 Rectangle(ImGui::GetCursorScreenPos().x + CharacterSize.x, ImGui::GetCursorScreenPos().y + CharacterSize.y);
-                        if(ImGui::IsMouseHoveringRect(ImGui::GetCursorScreenPos(), Rectangle))
-                        {
-                            m_IsSelectableActive = true;
-
-                            if(m_IsHeadSelected == false)
-                            {
-                                m_IsHeadSelected = true;
-                                // Select tail and head
-                                m_SelectableTail.x = i;                
-                                m_SelectableTail.y = lineStartIndex;   
-                                m_SelectableHead.x = i;              
-                                m_SelectableHead.y = lineStartIndex; 
-                            }
-                            else
-                            {
-                                // Select only head (it got moved maybe)
-                                m_SelectableHead.x = i;             
-                                m_SelectableHead.y = lineStartIndex;
-                            }
-                        }
-                        else
-                        {
-                            auto LineSize = it->size();
-                         
-                            if(i == LineSize-1)// For efficienty do this only for the latest character
-                            {
-                                auto WinPos = ImGui::GetWindowPos();
-
-                                const ImVec2 r_min(ImGui::GetCursorScreenPos());
-                                const ImVec2 r_max(AvailableDrawing.x + WinPos.x, ImGui::GetCursorScreenPos().y+CharacterSize.y);
-                                if(ImGui::IsMouseHoveringRect(r_min, r_max))
-                                {
-                                    if(ImGui::IsMouseDragging(ImGuiMouseButton_Left))
-                                    {
-                                        m_IsSelectableActive = true;
-            
-                                        if(m_IsHeadSelected == false)
-                                        {
-
-                                            m_IsHeadSelected = true;
-                                            // Select tail and head
-                                            m_SelectableTail.x = LineSize-1;                
-                                            m_SelectableTail.y = lineStartIndex;   
-                                        }
-                                        m_SelectableHead.x = 0;             
-                                        m_SelectableHead.y = lineStartIndex;
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    
-                    // Check if column is part of selectable area and drow the selectable background indicator
-                    {
-                        // Line Range
-                        if(IsPartOfSelectableArea(lineStartIndex, i))
-                        {
-                            ImVec2 Rectangle(ImGui::GetCursorScreenPos().x + CharacterSize.x, ImGui::GetCursorScreenPos().y + CharacterSize.y);
-                            ImDrawList* draw_list = ImGui::GetWindowDrawList();
-                            const ImU32 icon_bg_color = ImGui::GetColorU32(IM_COL32(255, 255, 255, 255));
-                            draw_list->AddRectFilled(ImGui::GetCursorScreenPos(), Rectangle, icon_bg_color);
-
-                            ImGui::TextColored(Terminal::VT100ColorToImVec2(VT100_BLACK), cell.character);
-                        }
-                        else
-                        {
-                            if(m_IsSelectableActive && ImGui::IsMouseClicked(ImGuiMouseButton_Left))
-                            {
-                                // Mouse clicked outside of selectable area
-                                m_IsSelectableActive = false;
-                                m_IsHeadSelected = false;
-                            }
-
-                            ImGui::TextColored(Terminal::VT100ColorToImVec2(cell.foreground), cell.character);
-                        }
-                    }
-                    m_CellsRendered++;
-                    RenderCursorPos.x += CharacterWidth;
-                }
-                RenderCursorPos.y += m_CSize.y;
-                RenderCursorPos.x = 0;
-
-                lineStartIndex++;
-            }
-
-           
-
-        }ImGui::End();
+        }
+        ImGui::End();
         ImGui::PopStyleVar(2);
-        ImGui::PopFont();
-
     }
 
     void Terminal::Write(std::vector<uint8_t> data)

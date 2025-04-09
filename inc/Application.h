@@ -35,9 +35,7 @@ namespace APPLICATION_NAME
         
         public:
         static Application* getInstance();
-        void Run();
-        ImFont* TERMINAL_FONT = nullptr;
-        
+        void Run();        
     private:
 
         Application();

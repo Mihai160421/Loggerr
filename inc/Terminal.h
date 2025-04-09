@@ -158,7 +158,7 @@ namespace APPLICATION_NAME
         /*
             Render the terminal
         */
-        void RenderTerminal(ImFont *font);
+        void RenderTerminal();
 
         /*
             Write data into the terminal

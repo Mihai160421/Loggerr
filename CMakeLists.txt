@@ -42,9 +42,18 @@ include_directories(vendors/glfw/include)
 
 # Setup FreeType
 add_subdirectory(vendors/freetype)
-set(FT_WITH_HARFBUZZ OFF CACHE BOOL "" FORCE)
-set(FT_DISABLE_HARFBUZZ ON CACHE BOOL "" FORCE)
-set(FT_DISABLE_ZLIB ON CACHE BOOL "" FORCE)
+
+message(STATUS "Compiler: ${CMAKE_CXX_COMPILER_ID}")
+
+if (CMAKE_COMPILER_IS_GNUCXX)
+    
+    set(FT_WITH_HARFBUZZ OFF CACHE BOOL "" FORCE)
+    set(FT_DISABLE_HARFBUZZ ON CACHE BOOL "" FORCE)
+    set(FT_DISABLE_ZLIB ON CACHE BOOL "" FORCE)
+else()
+endif()
+
+
 
 
 #Create executable

@@ -64,9 +64,6 @@ namespace APPLICATION_NAME
     void Application::Run()
     {
         terminal = new Terminal("Test Terminal");
-       
-        TERMINAL_FONT = ImGui::GetIO().Fonts->AddFontFromFileTTF("fonts/Roboto-Medium.ttf", 16.0f);
-        //ImGui::GetIO().Fonts->Build() ;
 
         // Add the main panel first in the panels list
         m_Panels.push_back(std::shared_ptr<MainIPanel>(MainIPanel::GetInstance()));
@@ -107,7 +104,7 @@ namespace APPLICATION_NAME
 
                 
                 IPanel::RenderPannelList(m_Panels); // Render all panels
-                terminal->RenderTerminal(TERMINAL_FONT);
+                terminal->RenderTerminal();
                 
                 ImGui::PopStyleVar();
 
