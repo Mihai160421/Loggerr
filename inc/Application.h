@@ -9,6 +9,7 @@
 #include "IPanel.h"
 #include "MainIPanel.h"
 #include "DashboardIPanel.h"
+#include "Terminal.h"
 
 extern "C" {
     #include <windows.h>
@@ -17,7 +18,6 @@ extern "C" {
 
 namespace APPLICATION_NAME
 {
-    class Terminal;
     class Application
     {
     private:
@@ -33,12 +33,9 @@ namespace APPLICATION_NAME
 
         Terminal *terminal = nullptr;
         
-        FT_Library FreeTypeHandler;
-
-    public:
+        public:
         static Application* getInstance();
         void Run();        
-        FT_Library GetFTLibHandler();
     private:
 
         Application();

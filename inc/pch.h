@@ -1,10 +1,8 @@
 #pragma once
 #include <GLFW/glfw3.h>
-
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
-
 
 #include "vtparse/vtparse.h"
 #include "freetype/include/ft2build.h"
@@ -17,7 +15,6 @@
 #include <sstream>
 #include <vector>
 #include <deque>
-#include <map>
 #include <cstddef>
 
 #define APPLICATION_NAME DockTerm
