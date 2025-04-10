@@ -4,27 +4,27 @@
 #include "MainIPanel.h"
 
 namespace APPLICATION_NAME
-{
-    enum VT100Color
+{    
+    enum VT100Color : ImU32
     {
-        VT100_BLACK,
-        VT100_RED,
-        VT100_GREEN,
-        VT100_YELLOW,
-        VT100_BLUE,
-        VT100_MAGENTA,
-        VT100_CYAN,
-        VT100_WHITE,
-        VT100_BRIGHT_BLACK,
-        VT100_BRIGHT_RED,
-        VT100_BRIGHT_GREEN,
-        VT100_BRIGHT_YELLOW,
-        VT100_BRIGHT_BLUE,
-        VT100_BRIGHT_MAGENTA,
-        VT100_BRIGHT_CYAN,
-        VT100_BRIGHT_WHITE,
-        VT100_COLOR_COUNT
-    } ;
+        VT100_BLACK           = IM_COL32(0,   0,   0,   255),
+        VT100_RED             = IM_COL32(128, 0,   0,   255),
+        VT100_GREEN           = IM_COL32(0,   128, 0,   255),
+        VT100_YELLOW          = IM_COL32(128, 128, 0,   255),
+        VT100_BLUE            = IM_COL32(0,   0,   128, 255),
+        VT100_MAGENTA         = IM_COL32(128, 0,   128, 255),
+        VT100_CYAN            = IM_COL32(0,   128, 128, 255),
+        VT100_WHITE           = IM_COL32(192, 192, 192, 255),  
+        
+        VT100_BRIGHT_BLACK    = IM_COL32(128, 128, 128, 255),
+        VT100_BRIGHT_RED      = IM_COL32(255, 0,   0,   255),
+        VT100_BRIGHT_GREEN    = IM_COL32(0,   255, 0,   255),
+        VT100_BRIGHT_YELLOW   = IM_COL32(255, 255, 0,   255),
+        VT100_BRIGHT_BLUE     = IM_COL32(0,   0,   255, 255),
+        VT100_BRIGHT_MAGENTA  = IM_COL32(255, 0,   255, 255),
+        VT100_BRIGHT_CYAN     = IM_COL32(0,   255, 255, 255),
+        VT100_BRIGHT_WHITE    = IM_COL32(255, 255, 255, 255),
+    };
 
     struct VT100Attributes 
     {
@@ -47,7 +47,7 @@ namespace APPLICATION_NAME
         */
         char character[2] = {' ', '\0'};
         VT100Color foreground = VT100_BRIGHT_WHITE;
-        VT100Color background = VT100_BLACK; /* Not yet implemented */
+        VT100Color background = VT100_BLACK;        /* Not yet implemented */
         VT100Attributes attr;
     
         Cell() = default;
@@ -59,7 +59,6 @@ namespace APPLICATION_NAME
             {
                 character[0] = c;
             }
-        
     };
 
     struct DebugLogs
@@ -76,13 +75,13 @@ namespace APPLICATION_NAME
 
     struct ScreenBuffer
     {
-        std::shared_ptr<std::deque<std::vector<Cell>>> m_Buffer;
+        std::shared_ptr<std::deque<std::vector<Cell>>> m_CellsMatrix;
         Cursor WriteCursor = {0, 0};
 
         void AddCell(Cell &cell)
         {
             // Get reference to bufer line
-            std::vector<Cell> *line = &(*m_Buffer)[WriteCursor.y];
+            std::vector<Cell> *line = &(*m_CellsMatrix)[WriteCursor.y];
 
             if(line->size() == WriteCursor.x) 
             {
@@ -109,35 +108,23 @@ namespace APPLICATION_NAME
             // IF we reached the end, add a new empty line in size as the CursorPosX+1 
             if (Rows() == WriteCursor.y)
             {
-                m_Buffer->push_back(std::vector<Cell>(WriteCursor.x+1, Cell::EMPTY_CELL()));
+                m_CellsMatrix->push_back(std::vector<Cell>(WriteCursor.x+1, Cell::EMPTY_CELL()));
             }   
         }
 
         size_t Rows()
         {
-            return m_Buffer->size();
+            return m_CellsMatrix->size();
         }
     };
-    
+
     class  Terminal
     {
     private:
-        uint64_t m_RowSize   = 0;               // Number of characters that fit on a row
-        uint64_t m_ColSize   = 0;               // Number of characters that fit on a column
-        uint64_t m_LinesRendered    = 0;        // Number of lines wraps
-        uint64_t m_CellsRendered    = 0;        // Number of lines wraps
-        ImVec2 m_MouseRelPositon;                // Mouse relative position to window terminal
-        Cell m_HoveredCell;
         std::string m_Name;
 
         bool m_DebugWindow = true;
         std::list<DebugLogs> m_DebugLogs;
-        
-        /* Used for selecting and coying text from the terminal */
-        bool m_IsSelectableActive = false;
-        bool m_IsHeadSelected = false;
-        Cursor m_SelectableTail = {0, 0};
-        Cursor m_SelectableHead = {0, 0};
 
         /*
             This is the buffer of cells (characters with additional data) that

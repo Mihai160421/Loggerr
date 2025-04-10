@@ -8,12 +8,11 @@ namespace APPLICATION_NAME
     Terminal::Terminal(std::string name)
     {   
         m_Name = name;
-        m_ScreenBuffer.m_Buffer = std::make_shared<std::deque<std::vector<Cell>>>();
-        m_ScreenBuffer.m_Buffer->push_back(std::vector<Cell>()); // Add a first empty line
+        m_ScreenBuffer.m_CellsMatrix = std::make_shared<std::deque<std::vector<Cell>>>();
+        m_ScreenBuffer.m_CellsMatrix->push_back(std::vector<Cell>()); // Add a first empty line
 
         vtparse_init(&m_vtparser, &Terminal::VT100ParserCallback);
         m_vtparser.user_data = this;
-
     }
 
     Terminal::~Terminal()
@@ -34,25 +33,46 @@ namespace APPLICATION_NAME
 
         if(ImGui::Begin(m_Name.c_str(), nullptr, ImGuiWindowFlags_NoSavedSettings))
         {
-            const ImVec2 AvailableDrawing = ImGui::GetContentRegionAvail();
-            const ImVec2 WindowPos        = ImGui::GetWindowPos();
+            const ImVec2 AvailableDrawing   = ImGui::GetContentRegionAvail();
+            const ImVec2 WindowPos          = ImGui::GetWindowPos();
+            const float CharHeight          = ImGui::GetTextLineHeight();
+            const float MaxRows             = std::floor(AvailableDrawing.y / CharHeight);
+            const float TitleBarHeight      = ImGui::GetWindowSize().y - AvailableDrawing.y;
+            ImDrawList* DrawList            = ImGui::GetWindowDrawList();
 
-            FT_Face face;
+            // Hack to set the scrollable area for the window based on the number of lines available
+            ImGui::Dummy(ImVec2(0, CharHeight * m_ScreenBuffer.m_CellsMatrix->size()));
 
-            // if (FT_New_Face(APPLICATION_NAME::Application::getInstance()->GetFTLibHandler(), "fonts/Roboto-Medium.ttf", 0, &face)) {
-            //     std::cerr << "Failed to load font" << std::endl;
-            // }else
-            // {
-            //     FT_Set_Pixel_Sizes(face, 0, 48); // font height in pixels
+            float ScrollbarYPos = ImGui::GetScrollY();
 
-            //     char ch = 'A';
-            //     if (FT_Load_Char(face, ch, FT_LOAD_RENDER)) {
-            //         std::cerr << "Failed to load Glyph" << std::endl;
-            //     }else{
-            //         FT_Bitmap& bitmap = face->glyph->bitmap;
-            //     }
-            // }
+            if(ScrollbarYPos >= ImGui::GetScrollMaxY())
+            {
+                ImGui::SetScrollHereY(1.0f);
+                ScrollbarYPos = ImGui::GetScrollY();
+            }
 
+            // Fetch the starting from the buffer based on the scrollbar y position
+
+            auto itStart = m_ScreenBuffer.m_CellsMatrix->begin() + (ScrollbarYPos / CharHeight); 
+
+            ImVec2 RenderCursor(WindowPos.x, WindowPos.y + TitleBarHeight);
+            unsigned RowsRendered = 0;
+
+            for(auto it = itStart; it <= m_ScreenBuffer.m_CellsMatrix->end(); it++)
+            {
+                if(RowsRendered++ == MaxRows)
+                {
+                    // Stop drawing if outside the limit
+                    break;
+                }
+                for(Cell& cell : *it)
+                {
+                    DrawList->AddText(RenderCursor, cell.foreground, cell.character);
+                    RenderCursor.x += ImGui::CalcTextSize(cell.character).x;
+                }
+                RenderCursor.y += CharHeight;
+                RenderCursor.x = WindowPos.x;
+            }
 
         }
         ImGui::End();
@@ -248,11 +268,6 @@ namespace APPLICATION_NAME
 
             ImGui::SameLine();
 
-            if(ImGui::Button("Clear Selectable"))
-            {
-                m_IsSelectableActive = false;
-                m_IsHeadSelected = false;
-            }
 
             if(ImGui::Button("Insert: \\n"))
             {
@@ -282,12 +297,6 @@ namespace APPLICATION_NAME
                 Write(vec);
             }
 
-            ImGui::Text("MouseRelPos: %f, %f", m_MouseRelPositon.x, m_MouseRelPositon.y);
-            ImGui::Text("LinesRendered: %d", m_LinesRendered);
-            ImGui::Text("CellsRendered: %d", m_CellsRendered);
-            ImGui::Text("HoveredCharacter: %c", m_HoveredCell.character);
-            ImGui::Text("SelectableHead: X:%d Y:%d", m_SelectableHead.x, m_SelectableHead.y);
-            ImGui::Text("SelectableTail: X:%d Y:%d", m_SelectableTail.x, m_SelectableTail.y);
         }
         ImGui::End();
     }
