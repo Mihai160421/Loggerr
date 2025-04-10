@@ -34,7 +34,6 @@ include_directories(
 
 add_library(imgui STATIC ${IMGUI_SOURCES})
 add_library(vtparse STATIC ${VTPARSE_SOURCES})
-add_library(glad STATIC ${GLAD_SOURCES})
 
 # Setup GLFW
 add_subdirectory(vendors/glfw)
@@ -57,7 +56,7 @@ add_executable(${PROJECT_NAME} ${SOURCE_FILE})
 target_precompile_headers(${PROJECT_NAME} PRIVATE  ${CMAKE_SOURCE_DIR}/inc/pch.h)
 
 # Link GLFW OPENGL IMGUI VTPARSER
-target_link_libraries(${PROJECT_NAME} PRIVATE glfw opengl32 imgui vtparse freetype glad)
+target_link_libraries(${PROJECT_NAME} PRIVATE glfw opengl32 imgui vtparse freetype)
 
 # Copy required assets
 file(COPY ${CMAKE_SOURCE_DIR}/vendors/imgui/misc/fonts/ DESTINATION ${CMAKE_BINARY_DIR}/fonts)
